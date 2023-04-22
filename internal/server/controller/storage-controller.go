@@ -21,6 +21,8 @@ type StorageController interface {
 	Store(ctx *gin.Context)
 	// GetAll returns all the untyped records from the database based on the data provided in the request.
 	GetAll(ctx *gin.Context)
+	// Updates the data and metadata of a document in the collection specified by the request URL.
+	Update(ctx *gin.Context)
 }
 
 // storageController implements StorageController interface.
@@ -54,7 +56,6 @@ func (c *storageController) getCollectionName(url string) string {
 // validateDataField validates the data field of the untyped record based on the collection name.
 func (c *storageController) validateDataField(data any, collectionName string) error {
 	// TODO: check binary
-
 	switch collectionName {
 	case models.CredentialsCollection:
 		var c models.Credential
@@ -76,7 +77,6 @@ func (c *storageController) validateDataField(data any, collectionName string) e
 	default:
 		return nil
 	}
-
 }
 
 // Store saves an untyped record to the database based on the data provided in the request.
@@ -123,4 +123,33 @@ func (c *storageController) GetAll(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, records)
+}
+
+// Updates the data and metadata of a document in the collection specified by the request URL,
+// based on the data provided in the request body. The updated document is identified by its ID,
+// which is included in the request body as well.
+func (c *storageController) Update(ctx *gin.Context) {
+	username := ctx.GetString(middleware.UsernameContextValue)
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		return
+	}
+	record := models.UntypedRecord{
+		Username: username,
+	}
+	if err := ctx.ShouldBindJSON(&record); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+	if err := c.validateDataField(record.Data, collectionName); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := c.service.Update(collectionName, username, record.RecordID, record.Data, record.Metadata)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
