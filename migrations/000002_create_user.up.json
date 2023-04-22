@@ -1,0 +1,12 @@
+[
+    {
+      "createUser": "gopher",
+      "pwd": "gopher",
+      "roles": [
+        {
+          "role": "readWrite",
+          "db": "gophkeeper"
+        }
+      ]
+    }
+  ]

@@ -1,0 +1,110 @@
+// Package service provides authentication services for the gophkeeper server.
+package service
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
+
+	"gophkeeper/internal/server/auth"
+	"gophkeeper/internal/server/errors"
+	"gophkeeper/internal/server/models"
+)
+
+// AuthService is an interface that defines the methods to handle authentication-related operations.
+type AuthService interface {
+	// Register creates a new user with the specified username and hashed password.
+	Register(username, password string) error
+	// Login attempts to authenticate a user with the specified username and password,
+	// and returns a JWT token if successful.
+	Login(username, password string) (string, error)
+}
+
+// authService is an implementation of the AuthService interface.
+type authService struct {
+	collection     *mongo.Collection // The MongoDB collection used to store user data.
+	signingKey     []byte            // The signing key used to generate JWT tokens.
+	expireDuration time.Duration     // The duration for which JWT tokens are valid.
+}
+
+// NewAuthService creates a new instance of the authService struct with the specified parameters.
+// Parameters:
+// - collection: The MongoDB collection used to store user data.
+// - signingKey: The signing key used to generate JWT tokens.
+// - expireDuration: The duration for which JWT tokens are valid.
+// Returns: An AuthService instance.
+func NewAuthService(
+	collection *mongo.Collection,
+	signingKey string,
+	expireDuration time.Duration,
+) AuthService {
+	return &authService{
+		collection:     collection,
+		signingKey:     []byte(signingKey),
+		expireDuration: expireDuration,
+	}
+}
+
+// Register creates a new user with the specified username and hashed password.
+// Returns an error if the username is already taken or if there is an error
+// while inserting the user data into the MongoDB collection.
+// Parameters:
+// - username: The username of the user to be registered.
+// - password: The password of the user to be registered.
+// Returns: An error if registration fails, nil otherwise.
+func (t *authService) Register(username, password string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		return err
+	}
+	_, err = t.collection.InsertOne(ctx, bson.D{
+		{Key: "username", Value: username},
+		{Key: "hashedPassword", Value: string(hashedPassword)},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Login attempts to authenticate a user with the specified username and password.
+// Returns a JWT token if authentication is successful, or an error otherwise.
+// Parameters:
+// - username: The username of the user to be authenticated.
+// - password: The password of the user to be authenticated.
+// Returns: A JWT token if authentication is successful, or an error otherwise.
+func (t *authService) Login(username, password string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	var user models.User
+	err := t.collection.FindOne(ctx, bson.D{{Key: "username", Value: username}}).Decode(&user)
+	if err == mongo.ErrNoDocuments {
+		return "", err
+	} else if err != nil {
+		return "", err
+	}
+	x := user.HashedPassword
+	fmt.Println(x)
+	ok, err := auth.VerifyPassword(password, user.HashedPassword)
+	if err != nil {
+		return "", err
+	}
+	if !ok {
+		return "", errors.ErrUnauthorized
+	}
+	tok, err := auth.GenerateJWTToken(username, t.signingKey, t.expireDuration)
+	if err != nil {
+		return "", err
+	}
+	return tok, err
+}
