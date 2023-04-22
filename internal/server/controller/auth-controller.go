@@ -8,7 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 
+	"gophkeeper/internal/server/errors"
 	"gophkeeper/internal/server/models"
 	"gophkeeper/internal/server/service"
 )
@@ -41,6 +43,10 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 	if err := c.service.Register(user.Username, user.Password); err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			ctx.JSON(http.StatusConflict, gin.H{"error": errors.ErrUsernameIsTaken.Error()})
+			return
+		}
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

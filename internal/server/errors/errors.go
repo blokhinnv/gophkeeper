@@ -8,4 +8,6 @@ var (
 	ErrUnauthorized = errors.New("unauthorized")
 	// ErrNoUsernameProvided is a predefined error for when no username is provided.
 	ErrNoUsernameProvided = errors.New("no username provided")
+	// ErrNoUsernameProvided is a predefined error for when username is already taken.
+	ErrUsernameIsTaken = errors.New("provided login is already taken")
 )
