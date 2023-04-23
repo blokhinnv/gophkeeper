@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"gophkeeper/internal/server/errors"
 	"gophkeeper/internal/server/middleware"
@@ -23,6 +24,8 @@ type StorageController interface {
 	GetAll(ctx *gin.Context)
 	// Updates the data and metadata of a document in the collection specified by the request URL.
 	Update(ctx *gin.Context)
+	// Delete deletes a record from the collection specified in the request URI.
+	Delete(ctx *gin.Context)
 }
 
 // storageController implements StorageController interface.
@@ -99,7 +102,7 @@ func (c *storageController) Store(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Store(collectionName, record)
+	err := c.service.Store(ctx.Request.Context(), collectionName, record)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -116,7 +119,7 @@ func (c *storageController) GetAll(ctx *gin.Context) {
 		return
 	}
 	collectionName := c.getCollectionName(ctx.Request.RequestURI)
-	records, err := c.service.GetAll(collectionName, username)
+	records, err := c.service.GetAll(ctx.Request.Context(), collectionName, username)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -147,7 +150,39 @@ func (c *storageController) Update(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Update(collectionName, username, record.RecordID, record.Data, record.Metadata)
+	err := c.service.Update(
+		ctx.Request.Context(),
+		collectionName,
+		username,
+		record.RecordID,
+		record.Data,
+		record.Metadata,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+}
+
+// Delete deletes a record from the collection specified in the request URI
+// using the provided record ID and the authenticated user's username.
+func (c *storageController) Delete(ctx *gin.Context) {
+	username := ctx.GetString(middleware.UsernameContextValue)
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		return
+	}
+	record := struct {
+		RecordID primitive.ObjectID `json:"record_id" bson:"_id" binding:"required"`
+	}{}
+
+	if err := ctx.ShouldBindJSON(&record); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+
+	err := c.service.Delete(ctx.Request.Context(), collectionName, username, record.RecordID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

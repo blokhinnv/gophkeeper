@@ -75,6 +75,10 @@ func RunServer(cfg *config.ServerConfig) {
 	protected.GET("/credentials", storageController.GetAll)
 	protected.GET("/binary", storageController.GetAll)
 	protected.GET("/cards", storageController.GetAll)
+	protected.DELETE("/text", storageController.Delete)
+	protected.DELETE("/credentials", storageController.Delete)
+	protected.DELETE("/binary", storageController.Delete)
+	protected.DELETE("/cards", storageController.Delete)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
