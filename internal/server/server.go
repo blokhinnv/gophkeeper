@@ -45,12 +45,14 @@ func RunServer(cfg *config.ServerConfig) {
 			cfg.SigningKey,
 			cfg.ExpireDuration,
 		)
+		syncService service.SyncService = service.NewSyncService()
 
 		storageController controller.StorageController = controller.NewStorageController(
 			textService,
 		)
 		utilsController controller.UtilsController = controller.NewUtilsController(utilsService)
 		authController  controller.AuthController  = controller.NewAuthController(authService)
+		syncController  controller.SyncController  = controller.NewSyncController(syncService)
 	)
 
 	// Set up routes and middleware.
@@ -67,18 +69,26 @@ func RunServer(cfg *config.ServerConfig) {
 	protected.PUT("/credentials", storageController.Store)
 	protected.PUT("/binary", storageController.Store)
 	protected.PUT("/cards", storageController.Store)
+
 	protected.POST("/text", storageController.Update)
 	protected.POST("/credentials", storageController.Update)
 	protected.POST("/binary", storageController.Update)
 	protected.POST("/cards", storageController.Update)
+
 	protected.GET("/text", storageController.GetAll)
 	protected.GET("/credentials", storageController.GetAll)
 	protected.GET("/binary", storageController.GetAll)
 	protected.GET("/cards", storageController.GetAll)
+
 	protected.DELETE("/text", storageController.Delete)
 	protected.DELETE("/credentials", storageController.Delete)
 	protected.DELETE("/binary", storageController.Delete)
 	protected.DELETE("/cards", storageController.Delete)
+
+	sync := r.Group("/api/sync")
+	sync.Use(middleware.JWTAuthMiddleware([]byte(cfg.SigningKey)))
+	sync.POST("/register", syncController.Register)
+	sync.POST("/unregister", syncController.Unregister)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
