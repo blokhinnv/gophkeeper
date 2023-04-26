@@ -15,27 +15,31 @@ type UntypedRecord struct {
 	Metadata Metadata           `json:"metadata"  bson:"metadata"`                    // Metadata is a map that can hold additional metadata for the record.
 }
 
+type TextInfo = string
+
 // TextRecord represents a record that holds text data. It
 // contains a username, text data, and metadata.
 type TextRecord struct {
-	RecordID primitive.ObjectID // Unique ID of a document in the DB.
-	Username string             // Username represents the username of the record owner.
-	Data     string             // Data is the text data for the record.
+	RecordID primitive.ObjectID `json:"record_id,omitempty"` // Unique ID of a document in the DB.
+	Username string             `json:",omitempty"`          // Username represents the username of the record owner.
+	Data     TextInfo           // Data is the text data for the record.
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
+
+type BinaryInfo = string
 
 // BinaryRecord represents a record that holds binary data.
 // It contains a username, binary data, and metadata.
 type BinaryRecord struct {
-	RecordID primitive.ObjectID // Unique ID of a document in the DB.
-	Username string             // Username represents the username of the record owner.
-	Data     []byte             // Data is the binary data for the record.
+	RecordID primitive.ObjectID `json:"record_id,omitempty"`                        // Unique ID of a document in the DB.
+	Username string             `json:",omitempty"`                                 // Username represents the username of the record owner.
+	Data     BinaryInfo         `                           validate:"credit_card"` // Data is the binary data in base64 for the record.
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
 
-// Credential represents a user's login credentials.
+// CredentialInfo represents a user's login credentials.
 // It contains login and password information.
-type Credential struct {
+type CredentialInfo struct {
 	Login    string `validate:"required"` // Login represents the login information for the credential.
 	Password string `validate:"required"` // Password represents the password information for the credential.
 }
@@ -43,9 +47,9 @@ type Credential struct {
 // CredentialRecord represents a record that holds user credentials.
 // It contains a username, credential data, and metadata.
 type CredentialRecord struct {
-	RecordID primitive.ObjectID // Unique ID of a document in the DB.
-	Username string             // Username represents the username of the credential owner.
-	Data     Credential         // Data is the credential data.
+	RecordID primitive.ObjectID `json:"record_id,omitempty"` // Unique ID of a document in the DB.
+	Username string             `json:",omitempty"`          // Username represents the username of the credential owner.
+	Data     CredentialInfo     // Data is the credential data.
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
 
@@ -60,8 +64,8 @@ type CardInfo struct {
 // CardRecord represents a record that holds credit card information.
 // It contains a username, card information, and metadata.
 type CardRecord struct {
-	RecordID primitive.ObjectID // Unique ID of a document in the DB.
-	Username string             // Username represents the username of the card owner.
+	RecordID primitive.ObjectID `json:"record_id,omitempty"` // Unique ID of a document in the DB.
+	Username string             `json:",omitempty"`          // Username represents the username of the card owner.
 	Data     CardInfo           // Data is the card information.
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }

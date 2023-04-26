@@ -58,15 +58,13 @@ func (c *storageController) getCollectionName(url string) string {
 
 // validateDataField validates the data field of the untyped record based on the collection name.
 func (c *storageController) validateDataField(data any, collectionName string) error {
-	// TODO: check binary
 	switch collectionName {
 	case models.CredentialsCollection:
-		var c models.Credential
+		var c models.CredentialInfo
 		err := mapstructure.Decode(data, &c)
 		if err != nil {
 			return err
 		}
-
 		err = validation.Validate.Struct(c)
 		return err
 	case models.CardCollection:
@@ -77,6 +75,8 @@ func (c *storageController) validateDataField(data any, collectionName string) e
 		}
 		err = validation.Validate.Struct(c)
 		return err
+	case models.BinaryCollection:
+		return validation.Validate.Var(data.(string), "base64")
 	default:
 		return nil
 	}
