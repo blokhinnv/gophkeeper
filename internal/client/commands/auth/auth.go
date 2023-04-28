@@ -8,11 +8,15 @@ import (
 
 // AuthCmd represents the auth command
 var (
-	authService = service.NewAuthService("http://localhost:8080")
+	authService service.AuthService
 	AuthCmd     = &cobra.Command{
 		Use:   "auth",
 		Short: "authorization and registration commands",
 		Long:  "A parent command for login and register.",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			baseURL := cmd.Flag("server").Value.String()
+			authService = service.NewAuthService(baseURL)
+		},
 	}
 )
 

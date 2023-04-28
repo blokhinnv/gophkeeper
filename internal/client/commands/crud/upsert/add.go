@@ -17,11 +17,7 @@ It requires a valid JWT token for authorization and accepts various flags for
 different types of data. The command constructs the record body and sends it
 to the server for storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		token, err := cmd.Flags().GetString("token")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		token := cmd.Flag("token").Value.String()
 		collectionName, err := models.NewCollection(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)

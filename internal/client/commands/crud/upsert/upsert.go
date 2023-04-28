@@ -23,12 +23,16 @@ type UpsertFlags struct {
 
 var (
 	cmdFlags       = UpsertFlags{}
-	storageService = service.NewStorageService("http://localhost:8080")
+	storageService service.StorageService
 	// UpsertCmd represents the item command
 	UpsertCmd = &cobra.Command{
 		Use:   "upsert",
 		Short: "upsert command",
 		Long:  "A parent command for add and update.",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			baseURL := cmd.Flag("server").Value.String()
+			storageService = service.NewStorageService(baseURL)
+		},
 	}
 )
 

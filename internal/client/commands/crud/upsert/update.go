@@ -16,16 +16,8 @@ var updateCmd = &cobra.Command{
 It requires a valid token, a collection name, and the id of the record to be updated.
 It also expects a valid JSON body that contains the updated information for the record.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		token, err := cmd.Flags().GetString("token")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		id, err := cmd.Flags().GetString("id")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		token := cmd.Flag("token").Value.String()
+		id := cmd.Flag("id").Value.String()
 		collectionName, err := models.NewCollection(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)

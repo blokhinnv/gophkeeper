@@ -27,8 +27,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(auth.AuthCmd)
-	rootCmd.AddCommand(crud.CRUDCmd)
-	rootCmd.AddCommand(shell.ShellCmd)
-	rootCmd.AddCommand(sync.SyncCmd)
+	rootCmd.AddCommand(auth.AuthCmd, crud.CRUDCmd, shell.ShellCmd, sync.SyncCmd)
+	rootCmd.PersistentFlags().StringP("server", "s", "http://localhost:8080", "server addr")
 }
