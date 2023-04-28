@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"gophkeeper/internal/server/errors"
-	"gophkeeper/internal/server/models"
-	"gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
 
 // AuthController defines the interface for authentication controller.

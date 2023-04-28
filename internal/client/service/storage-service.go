@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // StorageService defines the interface for managing data storage.

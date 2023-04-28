@@ -7,7 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // metadataFromFlags converts metadata from flags to models.Metadata

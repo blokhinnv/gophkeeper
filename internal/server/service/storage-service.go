@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // StorageService is an interface that defines the methods to store and retrieve untyped records.

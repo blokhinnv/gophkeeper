@@ -8,11 +8,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"gophkeeper/internal/server/errors"
-	"gophkeeper/internal/server/middleware"
-	"gophkeeper/internal/server/models"
-	"gophkeeper/internal/server/service"
-	"gophkeeper/internal/server/validation"
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/validation"
 )
 
 // StorageController defines the interface for storage

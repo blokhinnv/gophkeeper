@@ -5,10 +5,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"gophkeeper/internal/client/commands/auth"
-	"gophkeeper/internal/client/commands/crud"
-	"gophkeeper/internal/client/commands/shell"
-	"gophkeeper/internal/client/commands/sync"
+	"github.com/blokhinnv/gophkeeper/internal/client/commands/auth"
+	"github.com/blokhinnv/gophkeeper/internal/client/commands/crud"
+	"github.com/blokhinnv/gophkeeper/internal/client/commands/shell"
+	"github.com/blokhinnv/gophkeeper/internal/client/commands/sync"
 )
 
 // rootCmd represents the base command when called without any subcommands

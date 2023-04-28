@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
 
 // UtilsController defines the interface for utility controller,

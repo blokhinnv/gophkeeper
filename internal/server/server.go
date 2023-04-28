@@ -11,10 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"gophkeeper/internal/server/config"
-	"gophkeeper/internal/server/controller"
-	"gophkeeper/internal/server/middleware"
-	"gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/config"
+	"github.com/blokhinnv/gophkeeper/internal/server/controller"
+	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
+	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
 
 // RunServer starts the server and listens for incoming requests.

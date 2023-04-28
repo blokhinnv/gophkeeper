@@ -2,9 +2,10 @@
 package main
 
 import (
-	"gophkeeper/internal/server"
-	"gophkeeper/internal/server/config"
 	"log"
+
+	"github.com/blokhinnv/gophkeeper/internal/server"
+	"github.com/blokhinnv/gophkeeper/internal/server/config"
 
 	"github.com/joho/godotenv"
 )

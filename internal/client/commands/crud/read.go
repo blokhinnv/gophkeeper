@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // readCmd represents the read command

@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // SyncService defines the interface for syncing data.

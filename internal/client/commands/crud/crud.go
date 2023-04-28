@@ -3,8 +3,8 @@ package crud
 import (
 	"github.com/spf13/cobra"
 
-	"gophkeeper/internal/client/commands/crud/upsert"
-	"gophkeeper/internal/client/service"
+	"github.com/blokhinnv/gophkeeper/internal/client/commands/crud/upsert"
+	"github.com/blokhinnv/gophkeeper/internal/client/service"
 )
 
 var (

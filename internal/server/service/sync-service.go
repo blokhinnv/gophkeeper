@@ -1,9 +1,10 @@
 package service
 
 import (
-	"gophkeeper/internal/server/models"
 	"sync"
 	"time"
+
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"

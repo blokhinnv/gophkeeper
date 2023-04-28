@@ -4,8 +4,8 @@ package upsert
 import (
 	"github.com/spf13/cobra"
 
-	"gophkeeper/internal/client/service"
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/client/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // MetadataSlice is a slice of strings to store metadata

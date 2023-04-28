@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"gophkeeper/internal/server/auth"
+	"github.com/blokhinnv/gophkeeper/internal/server/auth"
 )
 
 // UsernameContextValue is the key used to set and get the username value in gin.Context.

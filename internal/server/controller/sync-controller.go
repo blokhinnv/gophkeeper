@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"gophkeeper/internal/server/errors"
-	"gophkeeper/internal/server/middleware"
-	"gophkeeper/internal/server/models"
-	"gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
 
 // SyncController defines the interface for handling sync-related HTTP requests.

@@ -10,9 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 
-	"gophkeeper/internal/server/auth"
-	"gophkeeper/internal/server/errors"
-	"gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/auth"
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // AuthService is an interface that defines the methods to handle authentication-related operations.

@@ -1,6 +1,6 @@
 package main
 
-import "gophkeeper/internal/client"
+import "github.com/blokhinnv/gophkeeper/internal/client"
 
 func main() {
 	client.RunClient()
