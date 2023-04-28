@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"gophkeeper/internal/client/commands/auth"
-	"gophkeeper/internal/client/commands/item"
+	"gophkeeper/internal/client/commands/crud"
 	"gophkeeper/internal/client/commands/shell"
 	"gophkeeper/internal/client/commands/sync"
 )
@@ -28,7 +28,7 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(auth.AuthCmd)
-	rootCmd.AddCommand(item.ItemCmd)
+	rootCmd.AddCommand(crud.CRUDCmd)
 	rootCmd.AddCommand(shell.ShellCmd)
 	rootCmd.AddCommand(sync.SyncCmd)
 }

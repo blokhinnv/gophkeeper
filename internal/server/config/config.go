@@ -14,11 +14,6 @@ type ServerConfig struct {
 // with values parsed from environment variables using the caarlos0/env/v6
 // package. If parsing any of the environment variables fails, an error is
 // returned.
-//
-// Returns:
-//   - *ServerConfig: a new ServerConfig object with fields populated with
-//     environment variable values.
-//   - error: an error if any of the environment variables fail to parse.
 func NewServerConfig() (*ServerConfig, error) {
 	cfg := ServerConfig{}
 	if err := env.Parse(&cfg.dbConfig); err != nil {

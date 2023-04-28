@@ -3,12 +3,14 @@ package upsert
 import (
 	"encoding/json"
 	"fmt"
-	"gophkeeper/internal/server/models"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"gophkeeper/internal/server/models"
 )
 
+// metadataFromFlags converts metadata from flags to models.Metadata
 func metadataFromFlags(flagsMetadata MetadataSlice) (models.Metadata, error) {
 	md := make(models.Metadata)
 	for _, v := range flagsMetadata {
@@ -21,7 +23,12 @@ func metadataFromFlags(flagsMetadata MetadataSlice) (models.Metadata, error) {
 	return md, nil
 }
 
-func getBody(flags *UpsertFlags, recordType, recordIDHex string) (string, error) {
+// getBody returns the body for the upsert operation
+func getBody(
+	flags *UpsertFlags,
+	collectionName models.Collection,
+	recordIDHex string,
+) (string, error) {
 	md, err := metadataFromFlags(flags.Metadata)
 	if err != nil {
 		return "", err
@@ -34,7 +41,7 @@ func getBody(flags *UpsertFlags, recordType, recordIDHex string) (string, error)
 
 	var body any
 
-	switch string(recordType) {
+	switch collectionName {
 	case models.TextCollection:
 		body = &models.TextRecord{
 			Data:     flags.TextInfo,

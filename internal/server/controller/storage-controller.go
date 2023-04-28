@@ -41,7 +41,7 @@ func NewStorageController(service service.StorageService) StorageController {
 }
 
 // getCollectionName returns the collection name based on the URL of the request.
-func (c *storageController) getCollectionName(url string) string {
+func (c *storageController) getCollectionName(url string) models.Collection {
 	switch {
 	case strings.Contains(url, "text"):
 		return models.TextCollection
@@ -57,7 +57,10 @@ func (c *storageController) getCollectionName(url string) string {
 }
 
 // validateDataField validates the data field of the untyped record based on the collection name.
-func (c *storageController) validateDataField(data any, collectionName string) error {
+func (c *storageController) validateDataField(
+	data any,
+	collectionName models.Collection,
+) error {
 	switch collectionName {
 	case models.CredentialsCollection:
 		var c models.CredentialInfo

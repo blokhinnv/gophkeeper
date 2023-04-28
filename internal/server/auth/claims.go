@@ -3,7 +3,7 @@ package auth
 
 import "github.com/golang-jwt/jwt/v4"
 
-// Claim is a struct containg custom fields included into JWT-token.
+// Claims is a struct containg custom fields included into JWT-token.
 type Claims struct {
 	jwt.RegisteredClaims
 	Username string `json:"username"`

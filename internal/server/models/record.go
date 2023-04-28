@@ -15,6 +15,7 @@ type UntypedRecord struct {
 	Metadata Metadata           `json:"metadata"  bson:"metadata"`                    // Metadata is a map that can hold additional metadata for the record.
 }
 
+// TextInfo is an alias for text string
 type TextInfo = string
 
 // TextRecord represents a record that holds text data. It
@@ -26,6 +27,7 @@ type TextRecord struct {
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
 
+// TextInfo is an alias for text string with semantics of being base64-encoded.
 type BinaryInfo = string
 
 // BinaryRecord represents a record that holds binary data.

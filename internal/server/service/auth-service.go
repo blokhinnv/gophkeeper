@@ -32,11 +32,6 @@ type authService struct {
 }
 
 // NewAuthService creates a new instance of the authService struct with the specified parameters.
-// Parameters:
-// - collection: The MongoDB collection used to store user data.
-// - signingKey: The signing key used to generate JWT tokens.
-// - expireDuration: The duration for which JWT tokens are valid.
-// Returns: An AuthService instance.
 func NewAuthService(
 	collection *mongo.Collection,
 	signingKey string,
@@ -50,12 +45,7 @@ func NewAuthService(
 }
 
 // Register creates a new user with the specified username and hashed password.
-// Returns an error if the username is already taken or if there is an error
-// while inserting the user data into the MongoDB collection.
-// Parameters:
-// - username: The username of the user to be registered.
-// - password: The password of the user to be registered.
-// Returns: An error if registration fails, nil otherwise.
+// Returns an error if the username is already taken or if there is an error.
 func (t *authService) Register(username, password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -78,10 +68,6 @@ func (t *authService) Register(username, password string) error {
 
 // Login attempts to authenticate a user with the specified username and password.
 // Returns a JWT token if authentication is successful, or an error otherwise.
-// Parameters:
-// - username: The username of the user to be authenticated.
-// - password: The password of the user to be authenticated.
-// Returns: A JWT token if authentication is successful, or an error otherwise.
 func (t *authService) Login(username, password string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

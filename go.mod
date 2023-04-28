@@ -2,7 +2,10 @@ module gophkeeper
 
 go 1.19
 
-require github.com/gin-gonic/gin v1.9.0
+require (
+	github.com/gin-gonic/gin v1.9.0
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
+)
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect

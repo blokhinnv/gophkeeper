@@ -10,18 +10,12 @@ import (
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "login",
-	Long:  `...`,
+	Long: `The loginCmd command represents the login functionality, used for user authorization.
+The command takes a username and password as arguments and returns a token,
+which can be used for subsequent authenticated requests.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		username, err := cmd.Flags().GetString("username")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		password, err := cmd.Flags().GetString("password")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		username := cmd.Flag("username").Value.String()
+		password := cmd.Flag("password").Value.String()
 		tok, err := authService.Auth(username, password)
 		if err != nil {
 			fmt.Println(err)
