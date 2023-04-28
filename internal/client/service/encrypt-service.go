@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -54,7 +54,7 @@ func (s *encryptService) ToEncryptedFile(resp *syncResponse, fileName, key strin
 	mode := cipher.NewCFBEncrypter(block, iv)
 	mode.XORKeyStream(ciphertext[aes.BlockSize:], data)
 
-	err = ioutil.WriteFile(fileName, ciphertext, 0644)
+	err = os.WriteFile(fileName, ciphertext, 0644)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (s *encryptService) ToEncryptedFile(resp *syncResponse, fileName, key strin
 // It uses AES encryption with the given password to decrypt the data.
 // Returns an error if decryption or reading from file fails.
 func (s *encryptService) FromEncryptedFile(fileName, key string) (*syncResponse, error) {
-	ciphertext, err := ioutil.ReadFile(fileName)
+	ciphertext, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
