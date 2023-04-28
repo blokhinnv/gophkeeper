@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -59,7 +60,7 @@ func getBody(
 			RecordID: recordID,
 		}
 	default:
-		return "", fmt.Errorf("unknown record type")
+		return "", fmt.Errorf("%w: %v", errors.ErrUnknownCollection, collectionName)
 	}
 
 	bodyEncoded, err := json.Marshal(body)

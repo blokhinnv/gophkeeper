@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -37,14 +38,14 @@ type syncResponse struct {
 // Sync syncs data from collections.
 func (s *syncService) Sync(
 	token string,
-	collections []models.Collection,
+	collectionNames []models.Collection,
 ) (*syncResponse, error) {
 	r := &syncResponse{}
-	for _, collection := range collections {
+	for _, collectionName := range collectionNames {
 		req := s.client.R().
 			SetHeader("Content-Type", "application/json").
 			SetHeader("Authorization", fmt.Sprintf("Bearer: %v", token))
-		switch collection {
+		switch collectionName {
 		case models.TextCollection:
 			req = req.SetResult(&r.Text)
 		case models.BinaryCollection:
@@ -54,14 +55,14 @@ func (s *syncService) Sync(
 		case models.CredentialsCollection:
 			req = req.SetResult(&r.Credential)
 		default:
-			return nil, fmt.Errorf("unknown collection type")
+			return nil, fmt.Errorf("%w: %v", errors.ErrUnknownCollection, collectionName)
 		}
-		resp, err := req.Get(fmt.Sprintf("/api/store/%v", collection))
+		resp, err := req.Get(fmt.Sprintf("/api/store/%v", collectionName))
 		if err != nil {
 			return nil, err
 		}
 		if resp.StatusCode() == http.StatusUnauthorized {
-			return nil, fmt.Errorf("unauthorized")
+			return nil, errors.ErrUnauthorized
 		}
 	}
 	return r, nil

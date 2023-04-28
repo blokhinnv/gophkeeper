@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"golang.org/x/exp/slices"
+
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 )
 
 // Collection represents the name of a collection in the database.
@@ -17,7 +19,7 @@ func NewCollection(s string) (Collection, error) {
 	if !slices.Contains(AllowedCollection, c) {
 		return c, nil
 	}
-	return "", fmt.Errorf("unknown collection")
+	return "", fmt.Errorf("%w: %v", errors.ErrUnknownCollection, s)
 }
 
 // TextCollection, CredentialsCollection,
