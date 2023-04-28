@@ -8,6 +8,7 @@ import "github.com/caarlos0/env/v6"
 type ServerConfig struct {
 	dbConfig
 	jwtConfig
+	Port string `env:"GOPHKEEPER_SERVER_PORT" envDefault:":8080"`
 }
 
 // NewServerConfig creates a new ServerConfig object and populates its fields
@@ -16,6 +17,9 @@ type ServerConfig struct {
 // returned.
 func NewServerConfig() (*ServerConfig, error) {
 	cfg := ServerConfig{}
+	if err := env.Parse(&cfg); err != nil {
+		return nil, err
+	}
 	if err := env.Parse(&cfg.dbConfig); err != nil {
 		return nil, err
 	}

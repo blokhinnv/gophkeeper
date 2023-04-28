@@ -3,6 +3,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/slices"
 
@@ -15,8 +16,8 @@ type Collection string
 // NewCollection creates a new Collection object from string and
 // checks if provided value is valid.
 func NewCollection(s string) (Collection, error) {
-	c := Collection(s)
-	if !slices.Contains(AllowedCollection, c) {
+	c := Collection(strings.ToLower(s))
+	if slices.Contains(AllowedCollection, c) {
 		return c, nil
 	}
 	return "", fmt.Errorf("%w: %v", errors.ErrUnknownCollection, s)

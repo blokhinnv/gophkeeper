@@ -35,13 +35,13 @@ func RunServer(cfg *config.ServerConfig) {
 	// Create service and controller instances.
 	var (
 		textService service.StorageService = service.NewStorageService(
-			client.Database("gophkeeper"),
+			client.Database(cfg.DBName),
 		)
 		utilsService service.UtilsService = service.NewUtilsService(
 			client,
 		)
 		authService service.AuthService = service.NewAuthService(
-			client.Database("gophkeeper").Collection("users"),
+			client.Database(cfg.DBName).Collection("users"),
 			cfg.SigningKey,
 			cfg.ExpireDuration,
 		)
@@ -65,30 +65,15 @@ func RunServer(cfg *config.ServerConfig) {
 
 	protected := r.Group("/api/store")
 	protected.Use(middleware.JWTAuthMiddleware([]byte(cfg.SigningKey)))
-	protected.PUT("/text", storageController.Store)
-	protected.PUT("/credentials", storageController.Store)
-	protected.PUT("/binary", storageController.Store)
-	protected.PUT("/cards", storageController.Store)
-
-	protected.POST("/text", storageController.Update)
-	protected.POST("/credentials", storageController.Update)
-	protected.POST("/binary", storageController.Update)
-	protected.POST("/cards", storageController.Update)
-
-	protected.GET("/text", storageController.GetAll)
-	protected.GET("/credentials", storageController.GetAll)
-	protected.GET("/binary", storageController.GetAll)
-	protected.GET("/cards", storageController.GetAll)
-
-	protected.DELETE("/text", storageController.Delete)
-	protected.DELETE("/credentials", storageController.Delete)
-	protected.DELETE("/binary", storageController.Delete)
-	protected.DELETE("/cards", storageController.Delete)
+	protected.PUT("/:collectionName", storageController.Store)
+	protected.POST("/:collectionName", storageController.Update)
+	protected.GET("/:collectionName", storageController.GetAll)
+	protected.DELETE("/:collectionName", storageController.Delete)
 
 	sync := r.Group("/api/sync")
 	sync.Use(middleware.JWTAuthMiddleware([]byte(cfg.SigningKey)))
 	sync.POST("/register", syncController.Register)
 	sync.POST("/unregister", syncController.Unregister)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run(cfg.Port)
 }

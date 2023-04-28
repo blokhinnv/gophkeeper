@@ -99,13 +99,18 @@ func (c *storageController) Store(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	if err := c.validateDataField(record.Data, collectionName); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := c.service.Store(ctx.Request.Context(), collectionName, record)
+	err = c.service.Store(ctx.Request.Context(), collectionName, record)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -121,7 +126,11 @@ func (c *storageController) GetAll(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
 		return
 	}
-	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	records, err := c.service.GetAll(ctx.Request.Context(), collectionName, username)
 
 	if err != nil {
@@ -147,13 +156,17 @@ func (c *storageController) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if err := c.validateDataField(record.Data, collectionName); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := c.service.Update(
+	err = c.service.Update(
 		ctx.Request.Context(),
 		collectionName,
 		username,
@@ -183,9 +196,13 @@ func (c *storageController) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	collectionName := c.getCollectionName(ctx.Request.RequestURI)
+	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	err := c.service.Delete(ctx.Request.Context(), collectionName, username, record.RecordID)
+	err = c.service.Delete(ctx.Request.Context(), collectionName, username, record.RecordID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
