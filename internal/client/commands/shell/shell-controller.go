@@ -3,6 +3,8 @@ package shell
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net"
 	"os"
 
 	"github.com/blokhinnv/gophkeeper/internal/client/service"
@@ -50,21 +52,62 @@ type shellController struct {
 	authService    service.AuthService
 	syncService    service.SyncService
 	storageService service.StorageService
+
+	listener net.Listener
 }
 
 // NewShellController creates a new shell controller with the specified base URL.
-func NewShellController(baseURL string) ShellController {
-	return &shellController{
-		authService:    service.NewAuthService(baseURL),
-		syncService:    service.NewSyncService(baseURL),
-		storageService: service.NewStorageService(baseURL),
+func NewShellController(serverBaseURL string) ShellController {
+	listener, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		log.Fatalf("Error while creating a listener: %v", err)
 	}
+	ctrl := &shellController{
+		authService:    service.NewAuthService(serverBaseURL),
+		syncService:    service.NewSyncService(serverBaseURL),
+		storageService: service.NewStorageService(serverBaseURL),
+		listener:       listener,
+	}
+	go ctrl.listenerLoop()
+	return ctrl
+}
+
+// listenerLoop accepts connections from server and syncs the data for all the
+// available clients of the same user.
+func (s *shellController) listenerLoop() {
+	for {
+		connection, err := s.listener.Accept()
+		if err != nil {
+			log.Fatalln("Error accepting: ", err.Error())
+		}
+		s.sync()
+		connection.Close()
+	}
+}
+
+func (s *shellController) registerClient() {
+	r, err := s.syncService.Register(s.Token, s.listener.Addr().String())
+	if err != nil {
+		log.Fatalf("unable to register client")
+		return
+	}
+	fmt.Println(r)
+}
+
+func (s *shellController) unregisterClient() {
+	r, err := s.syncService.Unregister(s.Token, s.listener.Addr().String())
+	if err != nil {
+		log.Fatalf("unable to unregister client")
+		return
+	}
+	fmt.Println(r)
 }
 
 // SetAuth sets the authentication status and token for the shell controller.
 func (s *shellController) SetAuth(token string) {
 	s.Token = token
 	s.Auth = true
+	s.registerClient()
 }
 
 // ShowMenu displays the available options based on user authentication.
@@ -97,6 +140,8 @@ func (s *shellController) ShowMenu() {
 // quit quits the shell session.
 func (s *shellController) quit() {
 	fmt.Println("Bye!")
+	s.listener.Close()
+	s.unregisterClient()
 	os.Exit(0)
 }
 
@@ -112,6 +157,7 @@ func (s *shellController) login() {
 	fmt.Println("Token: ", tok)
 	s.Token = tok
 	s.Auth = true
+	s.registerClient()
 }
 
 // register prompts the user for registration credentials and registers the user.
@@ -127,6 +173,7 @@ func (s *shellController) register() {
 
 // sync retrieves the data from the server and stores it in the shell controller.
 func (s *shellController) sync() {
+	fmt.Println("sync....")
 	syncResp, err := s.syncService.Sync(s.Token, models.AllowedCollection)
 	if err != nil {
 		fmt.Println(err)

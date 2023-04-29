@@ -7,6 +7,11 @@ definitions:
     required:
     - record_id
     type: object
+  models.Client:
+    properties:
+      socket_addr:
+        type: string
+    type: object
   models.Metadata:
     additionalProperties:
       type: string
@@ -231,6 +236,72 @@ paths:
       summary: Store an untyped record to the database.
       tags:
       - Storage
+  /api/sync/register:
+    post:
+      consumes:
+      - application/json
+      description: Allows a client to register with the synchronization service.
+      operationId: RegisterClient
+      parameters:
+      - description: Client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: client registered
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Registers a new client with the synchronization service.
+      tags:
+      - Sync
+  /api/sync/unregister:
+    post:
+      consumes:
+      - application/json
+      description: Allows a client to unregister from the synchronization service.
+      operationId: UnregisterClient
+      parameters:
+      - description: Client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: client unregistered
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Unregisters an existing client from the server.
+      tags:
+      - Sync
   /api/user/login:
     put:
       description: Logs in a user with the provided username and password

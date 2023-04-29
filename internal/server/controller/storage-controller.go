@@ -32,12 +32,17 @@ type StorageController interface {
 // storageController implements StorageController interface.
 type storageController struct {
 	service service.StorageService
+	sync    service.SyncService
 }
 
 // NewStorageController creates a new instance of StorageController with the given StorageService.
-func NewStorageController(service service.StorageService) StorageController {
+func NewStorageController(
+	service service.StorageService,
+	sync service.SyncService,
+) StorageController {
 	return &storageController{
 		service: service,
+		sync:    sync,
 	}
 }
 
@@ -114,7 +119,7 @@ func (c *storageController) Store(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
+	go c.sync.Signal(&models.Client{Username: username})
 	ctx.String(
 		http.StatusAccepted,
 		fmt.Sprintf(

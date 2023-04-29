@@ -29,44 +29,66 @@ func NewSyncController(service service.SyncService) SyncController {
 	}
 }
 
-// Register registers a new client with the server.
+// Register godoc
+//
+//	@Summary Registers a new client with the synchronization service.
+//	@Security bearerAuth
+//	@Description Allows a client to register with the synchronization service.
+//	@Accept json
+//	@Produce plain
+//	@ID RegisterClient
+//	@Tags Sync
+//	@Param	client	body	models.Client	true	"Client"
+//	@Success 200 {string}	string	"client registered"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Router /api/sync/register [post]
 func (s *syncController) Register(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	client := &models.Client{
-		Addr:     ctx.Request.RemoteAddr,
 		Username: username,
 	}
+	if err := ctx.ShouldBindJSON(&client); err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
+		return
+	}
 	s.service.Register(client)
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "registered",
-		"info": gin.H{
-			"addr":     client.Addr,
-			"username": client.Username,
-		},
-	})
+	ctx.String(http.StatusOK, "client registered")
 }
 
-// Unregister unregisters an existing client from the server.
+// Unregister
+// Store godoc
+//
+//	@Summary Unregisters an existing client from the server.
+//	@Security bearerAuth
+//	@Description Allows a client to unregister from the synchronization service.
+//	@Accept json
+//	@Produce plain
+//	@ID UnregisterClient
+//	@Tags Sync
+//	@Param	client	body	models.Client	true	"Client"
+//	@Success 200 {string}	string	"client unregistered"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Router /api/sync/unregister [post]
 func (s *syncController) Unregister(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusBadRequest, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	client := &models.Client{
-		Addr:     ctx.Request.RemoteAddr,
 		Username: username,
 	}
+	if err := ctx.ShouldBindJSON(&client); err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	s.service.Unregister(client)
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "unregistered",
-		"info": gin.H{
-			"addr":     client.Addr,
-			"username": client.Username,
-		},
-	})
+	ctx.String(http.StatusOK, "client unregistered")
 }

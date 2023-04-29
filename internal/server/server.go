@@ -47,7 +47,7 @@ func RunServer(cfg *config.ServerConfig) {
 
 	// Create service and controller instances.
 	var (
-		textService service.StorageService = service.NewStorageService(
+		storageService service.StorageService = service.NewStorageService(
 			client.Database(cfg.DBName),
 		)
 		utilsService service.UtilsService = service.NewUtilsService(
@@ -61,7 +61,7 @@ func RunServer(cfg *config.ServerConfig) {
 		syncService service.SyncService = service.NewSyncService()
 
 		storageController controller.StorageController = controller.NewStorageController(
-			textService,
+			storageService, syncService,
 		)
 		utilsController controller.UtilsController = controller.NewUtilsController(utilsService)
 		authController  controller.AuthController  = controller.NewAuthController(authService)

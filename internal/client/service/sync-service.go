@@ -15,6 +15,8 @@ import (
 type SyncService interface {
 	// Sync syncs data from collections.
 	Sync(token string, collections []models.Collection) (*syncResponse, error)
+	Register(token, sockAddr string) (string, error)
+	Unregister(token, sockAddr string) (string, error)
 }
 
 // syncService implements the SyncService interface.
@@ -70,4 +72,34 @@ func (s *syncService) Sync(
 		}
 	}
 	return r, nil
+}
+
+func (s *syncService) Register(token, sockAddr string) (string, error) {
+	req := s.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Authorization", fmt.Sprintf("Bearer: %v", token)).
+		SetBody(fmt.Sprintf(`{"socket_addr": "%v"}`, sockAddr))
+	resp, err := req.Post("/api/sync/register")
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode() >= http.StatusBadRequest {
+		return "", errors.New(resp.String())
+	}
+	return resp.String(), nil
+}
+
+func (s *syncService) Unregister(token, sockAddr string) (string, error) {
+	req := s.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Authorization", fmt.Sprintf("Bearer: %v", token)).
+		SetBody(fmt.Sprintf(`{"socket_addr": "%v"}`, sockAddr))
+	resp, err := req.Post("/api/sync/unregister")
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode() >= http.StatusBadRequest {
+		return "", errors.New(resp.String())
+	}
+	return resp.String(), nil
 }
