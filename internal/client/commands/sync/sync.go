@@ -69,7 +69,7 @@ func init() {
 			},
 			"collections to sync",
 		)
-	for _, flag := range []string{"token", "file", "key", "collection"} {
+	for _, flag := range []string{"token", "file", "key"} {
 		SyncCmd.MarkPersistentFlagRequired(flag)
 	}
 }

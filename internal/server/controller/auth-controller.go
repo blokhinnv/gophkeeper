@@ -5,6 +5,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,35 +36,71 @@ func NewAuthController(service service.AuthService) AuthController {
 	}
 }
 
-// Register is the controller method for registering a new user.
+// Register godoc
+//
+//	@Summary Register a new user
+//	@Description Register a new user with provided credentials
+//	@Produce plain
+//	@ID Register
+//	@Tags Authy
+//	@Param	credentials body	models.UserCredentials	true	"Credentials"
+//	@Success 200 {string}	string	"success"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 409 {string}	string	"Username is already taken"
+//	@Router /api/user/register [put]
 func (c *authController) Register(ctx *gin.Context) {
-	var user models.User
+	var user models.UserCredentials
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := c.service.Register(user.Username, user.Password); err != nil {
 		if mongo.IsDuplicateKeyError(err) {
-			ctx.JSON(http.StatusConflict, gin.H{"error": errors.ErrUsernameIsTaken.Error()})
+			ctx.String(http.StatusConflict,
+				fmt.Sprintf(
+					"%v: %v",
+					errors.ErrUsernameIsTaken.Error(),
+					user.Username,
+				),
+			)
 			return
 		}
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "registrated"})
+	ctx.String(http.StatusOK, "success")
 }
 
-// Login is the controller method for user login.
+// Login godoc
+//
+//	@Summary Logs in a user
+//	@Description Logs in a user with the provided username and password
+//	@Produce plain
+//	@ID Login
+//	@Tags Authy
+//	@Param	credentials body	models.UserCredentials	true	"Credentials"
+//	@Success 200 {string}	string	"some JWT token"
+//	@Failure 400 {string}	string	"no username provided"
+//	@Failure 401 {string}	string	"username or password is incorrect: testuser/qwerty"
+//	@Router /api/user/login [put]
 func (c *authController) Login(ctx *gin.Context) {
-	var user models.User
+	var user models.UserCredentials
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	tok, err := c.service.Login(user.Username, user.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "username or password is incorrect."})
+		ctx.String(
+			http.StatusUnauthorized,
+			fmt.Sprintf(
+				"%v: %v %v",
+				errors.ErrBadCredentials.Error(),
+				user.Username,
+				user.Password,
+			),
+		)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "logged in", "tok": tok})
+	ctx.String(http.StatusOK, tok)
 }

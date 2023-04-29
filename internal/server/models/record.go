@@ -6,13 +6,18 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 // Metadata is a map that holds key-value pairs as additional metadata for a record.
 type Metadata map[string]string
 
+// UntypedRecordContent represents the content of an untyped record in the database.
+type UntypedRecordContent struct {
+	Data     any      `json:"data"     bson:"data"     binding:"required"` // Data is an interface{} that can hold any type of data for the record.
+	Metadata Metadata `json:"metadata" bson:"metadata"`                    // Metadata is a map that can hold additional metadata for the record.
+}
+
 // UntypedRecord represents a record that can hold any type of data as an interface{}.
 // It contains a username, data, and metadata.
 type UntypedRecord struct {
-	RecordID primitive.ObjectID `json:"record_id" bson:"_id"`                         // Unique ID of a document in the DB.
-	Username string             `json:"username"  bson:"username"`                    // Username represents the username of the record owner.
-	Data     any                `json:"data"      bson:"data"     binding:"required"` // Data is an interface{} that can hold any type of data for the record.
-	Metadata Metadata           `json:"metadata"  bson:"metadata"`                    // Metadata is a map that can hold additional metadata for the record.
+	UntypedRecordContent `bson:",inline"`
+	RecordID             primitive.ObjectID `bson:"_id"     json:"record_id"` // Unique ID of a document in the DB.
+	Username             string             `bson:"-"       json:"-"`         // Username represents the username of the record owner.
 }
 
 // TextInfo is an alias for text string

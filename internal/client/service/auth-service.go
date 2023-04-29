@@ -4,6 +4,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -36,15 +37,17 @@ type authResult struct {
 // Auth authenticates a user with the given username and password and returns an authentication token if successful.
 func (s *authService) Auth(username, password string) (string, error) {
 	r := &authResult{}
-	_, err := s.client.R().
+	resp, err := s.client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)).
-		SetResult(r).
-		SetError(r).
 		Put("/api/user/login")
 	if err != nil {
 		return "", err
 	}
+	if resp.StatusCode() >= http.StatusBadRequest {
+		r.Error = resp.String()
+	}
+	r.Token = resp.String()
 	if r.Error != "" {
 		return "", errors.New(r.Error)
 	}
@@ -54,15 +57,17 @@ func (s *authService) Auth(username, password string) (string, error) {
 // Register creates a new user with the given username and password.
 func (s *authService) Register(username, password string) error {
 	r := &authResult{}
-	_, err := s.client.R().
+	resp, err := s.client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)).
-		SetResult(r).
-		SetError(r).
 		Put("/api/user/register")
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode() >= http.StatusBadRequest {
+		r.Error = resp.String()
+	}
+	r.Token = resp.String()
 	if r.Error != "" {
 		return errors.New(r.Error)
 	}

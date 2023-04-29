@@ -29,11 +29,12 @@ It also expects a valid JSON body that contains the updated information for the 
 			fmt.Println(err)
 			return
 		}
-		err = storageService.Update(body, collectionName, token)
+		msg, err := storageService.Update(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(msg)
 
 	},
 }

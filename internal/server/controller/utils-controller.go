@@ -27,17 +27,21 @@ func NewUtilsController(service service.UtilsService) UtilsController {
 	}
 }
 
-// Ping returns a JSON response with a "pong" message
-// if the server is available, otherwise returns an error message.
+// Ping godoc
+//
+//	@Summary Ping server
+//	@Description Returns plain text response with a "pong" message if the server is available, otherwise returns an error message.
+//	@Produce plain
+//	@ID Ping
+//	@Tags Utils
+//	@Success 200 {string}	string	"pong"
+//	@Failure 500 {string}	string	"not pong"
+//	@Router /api/ping [get]
 func (c *utilsController) Ping(ctx *gin.Context) {
 	err := c.service.Ping()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "not pong",
-		})
+		ctx.String(http.StatusInternalServerError, "not pong")
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "pong",
-	})
+	ctx.String(http.StatusOK, "pong")
 }

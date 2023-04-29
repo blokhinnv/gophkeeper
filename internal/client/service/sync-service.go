@@ -1,12 +1,13 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -55,14 +56,17 @@ func (s *syncService) Sync(
 		case models.CredentialsCollection:
 			req = req.SetResult(&r.Credential)
 		default:
-			return nil, fmt.Errorf("%w: %v", errors.ErrUnknownCollection, collectionName)
+			return nil, fmt.Errorf("%w: %v", srvErrors.ErrUnknownCollection, collectionName)
 		}
 		resp, err := req.Get(fmt.Sprintf("/api/store/%v", collectionName))
 		if err != nil {
 			return nil, err
 		}
 		if resp.StatusCode() == http.StatusUnauthorized {
-			return nil, errors.ErrUnauthorized
+			return nil, srvErrors.ErrUnauthorized
+		}
+		if resp.StatusCode() >= http.StatusBadRequest {
+			return nil, errors.New(resp.String())
 		}
 	}
 	return r, nil

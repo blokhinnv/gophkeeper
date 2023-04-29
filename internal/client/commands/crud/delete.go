@@ -25,11 +25,12 @@ The command will construct a request body using the provided record ID, and send
 			return
 		}
 		body := fmt.Sprintf(`{"record_id": "%v"}`, id)
-		err = storageService.Delete(body, collectionName, token)
+		msg, err := storageService.Delete(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(msg)
 	},
 }
 

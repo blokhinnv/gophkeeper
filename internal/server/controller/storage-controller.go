@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
@@ -40,22 +40,6 @@ func NewStorageController(service service.StorageService) StorageController {
 	}
 }
 
-// getCollectionName returns the collection name based on the URL of the request.
-func (c *storageController) getCollectionName(url string) models.Collection {
-	switch {
-	case strings.Contains(url, "text"):
-		return models.TextCollection
-	case strings.Contains(url, "binary"):
-		return models.BinaryCollection
-	case strings.Contains(url, "cards"):
-		return models.CardCollection
-	case strings.Contains(url, "credentials"):
-		return models.CredentialsCollection
-	default:
-		return models.TextCollection
-	}
-}
-
 // validateDataField validates the data field of the untyped record based on the collection name.
 func (c *storageController) validateDataField(
 	data any,
@@ -85,84 +69,126 @@ func (c *storageController) validateDataField(
 	}
 }
 
-// Store saves an untyped record to the database based on the data provided in the request.
+// Store godoc
+//
+//	@Summary Store an untyped record to the database.
+//	@Security bearerAuth
+//	@Description Stores an untyped record to the database based on the data provided in the request.
+//	@Accept json
+//	@Produce plain
+//	@ID Store
+//	@Tags Storage
+//	@Param	record	body	models.UntypedRecordContent	true	"Record"
+//	@Param        collectionName   path      string  true  "Collection name"
+//	@Success 202 {string}	string	"Record added to collection"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Router /api/store/{collectionName} [put]
 func (c *storageController) Store(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	record := models.UntypedRecord{
 		Username: username,
 	}
-	if err := ctx.ShouldBindJSON(&record); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&record.UntypedRecordContent); err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := c.validateDataField(record.Data, collectionName); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = c.service.Store(ctx.Request.Context(), collectionName, record)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, nil)
+	ctx.String(
+		http.StatusAccepted,
+		fmt.Sprintf("Record %+v added to %v collection", record, collectionName),
+	)
 }
 
-// GetAll returns all the untyped records from the database based on the data provided in the request.
+// GetAll godoc
+//
+//	@Summary Retrieve all untyped records for the authenticated user from a collection.
+//	@Description Returns all the untyped records from the database based on the data provided in the request.
+//	@Security bearerAuth
+//	@Accept json
+//	@Produce json
+//	@ID GetAll
+//	@Tags Storage
+//	@Param        collectionName   path      string  true  "Collection name"
+//	@Success 200 {array}	models.UntypedRecord	"Record added by the user in the specified collection"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Router /api/store/{collectionName} [get]
 func (c *storageController) GetAll(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	records, err := c.service.GetAll(ctx.Request.Context(), collectionName, username)
-
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, records)
 }
 
-// Updates the data and metadata of a document in the collection specified by the request URL,
-// based on the data provided in the request body. The updated document is identified by its ID,
-// which is included in the request body as well.
+// Update godoc
+//
+//	@Summary Update an existing record in the database.
+//	@Description Updates the data and metadata of a document in the collection specified by the request URL, based on the data provided in the request body. The updated document is identified by its ID, which is included in the request body as well.
+//	@Security bearerAuth
+//	@Accept json
+//	@Produce plain
+//	@ID Update
+//	@Tags Storage
+//	@Param	record	body	models.UntypedRecord	true	"Record"
+//	@Param        collectionName   path      string  true  "Collection name"
+//	@Success 202 {string}	string	"Record updated"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Failure 500 {string}	string	"Server error"
+//	@Router /api/store/{collectionName} [post]
 func (c *storageController) Update(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	record := models.UntypedRecord{
 		Username: username,
 	}
 	if err := ctx.ShouldBindJSON(&record); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := c.validateDataField(record.Data, collectionName); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -174,37 +200,62 @@ func (c *storageController) Update(ctx *gin.Context) {
 		record.Data,
 		record.Metadata,
 	)
+	// TODO: not found
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
+	ctx.String(
+		http.StatusAccepted,
+		fmt.Sprintf("Record %+v updated in %v collection", record, collectionName),
+	)
 }
 
-// Delete deletes a record from the collection specified in the request URI
-// using the provided record ID and the authenticated user's username.
+type deleteRequestBody struct {
+	RecordID primitive.ObjectID `json:"record_id" bson:"_id" binding:"required"`
+}
+
+// Delete godoc
+//
+//	@Summary Delete a record by ID
+//	@Description Deletes a record from the specified collection by ID.
+//	@Security bearerAuth
+//	@Accept json
+//	@Produce plain
+//	@ID Delete
+//	@Tags Storage
+//	@Param	record_id	body	deleteRequestBody	true	"RecordID"
+//	@Param        collectionName   path      string  true  "Collection name"
+//	@Success 200 {string}	string	"Record deleted"
+//	@Failure 400 {string}	string	"Bad Request"
+//	@Failure 401 {string}	string	"No username provided"
+//	@Failure 500 {string}	string	"Server error"
+//	@Router /api/store/{collectionName} [delete]
 func (c *storageController) Delete(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.ErrNoUsernameProvided.Error()})
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
-	record := struct {
-		RecordID primitive.ObjectID `json:"record_id" bson:"_id" binding:"required"`
-	}{}
+	record := deleteRequestBody{}
 
 	if err := ctx.ShouldBindJSON(&record); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
+	// TODO: not found
 	err = c.service.Delete(ctx.Request.Context(), collectionName, username, record.RecordID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
+	ctx.String(
+		http.StatusOK,
+		fmt.Sprintf("Record %+v deleted from %v collection", record, collectionName),
+	)
 }

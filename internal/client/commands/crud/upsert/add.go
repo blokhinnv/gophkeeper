@@ -29,11 +29,12 @@ to the server for storage.`,
 			fmt.Println(err)
 			return
 		}
-		err = storageService.Add(body, collectionName, token)
+		msg, err := storageService.Add(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(msg)
 	},
 }
 

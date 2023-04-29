@@ -5,19 +5,32 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/blokhinnv/gophkeeper/internal/server/config"
 	"github.com/blokhinnv/gophkeeper/internal/server/controller"
+	_ "github.com/blokhinnv/gophkeeper/internal/server/docs"
 	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
 	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
 
 // RunServer starts the server and listens for incoming requests.
+//
+//	@title Gophkeeper server
+//	@version 1.0
+//	@description Gophkeeper server which allows user to store the sensitive data.
+//	@BasePath /
+//	@schemes http
+//	@securityDefinitions.apikey bearerAuth
+//	@in header
+//	@name Authorization
 func RunServer(cfg *config.ServerConfig) {
 	// Connect to MongoDB.
 	log.Printf("Starting server with config %+v\n", cfg)
@@ -75,5 +88,7 @@ func RunServer(cfg *config.ServerConfig) {
 	sync.POST("/register", syncController.Register)
 	sync.POST("/unregister", syncController.Unregister)
 
-	r.Run(cfg.Port)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	r.Run(fmt.Sprintf("127.0.0.1%v", cfg.Port))
 }

@@ -37,7 +37,7 @@ var (
 )
 
 func init() {
-	UpsertCmd.PersistentFlags().String("token", "t", "user's jwt token")
+	UpsertCmd.PersistentFlags().String("token", "", "user's jwt token")
 	UpsertCmd.MarkPersistentFlagRequired("token")
 
 	UpsertCmd.PersistentFlags().

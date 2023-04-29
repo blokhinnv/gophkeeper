@@ -1,0 +1,449 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Gophkeeper server which allows user to store the sensitive data.",
+        "title": "Gophkeeper server",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/ping": {
+            "get": {
+                "description": "Returns plain text response with a \"pong\" message if the server is available, otherwise returns an error message.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Utils"
+                ],
+                "summary": "Ping server",
+                "operationId": "Ping",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "not pong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/store/{collectionName}": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Returns all the untyped records from the database based on the data provided in the request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Retrieve all untyped records for the authenticated user from a collection.",
+                "operationId": "GetAll",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Collection name",
+                        "name": "collectionName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Record added by the user in the specified collection",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UntypedRecord"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "No username provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Stores an untyped record to the database based on the data provided in the request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Store an untyped record to the database.",
+                "operationId": "Store",
+                "parameters": [
+                    {
+                        "description": "Record",
+                        "name": "record",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UntypedRecordContent"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collection name",
+                        "name": "collectionName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Record added to collection",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "No username provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Updates the data and metadata of a document in the collection specified by the request URL, based on the data provided in the request body. The updated document is identified by its ID, which is included in the request body as well.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Update an existing record in the database.",
+                "operationId": "Update",
+                "parameters": [
+                    {
+                        "description": "Record",
+                        "name": "record",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UntypedRecord"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collection name",
+                        "name": "collectionName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Record updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "No username provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Deletes a record from the specified collection by ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Delete a record by ID",
+                "operationId": "Delete",
+                "parameters": [
+                    {
+                        "description": "RecordID",
+                        "name": "record_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.deleteRequestBody"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collection name",
+                        "name": "collectionName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Record deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "No username provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "put": {
+                "description": "Logs in a user with the provided username and password",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Authy"
+                ],
+                "summary": "Logs in a user",
+                "operationId": "Login",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "some JWT token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "no username provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "username or password is incorrect: testuser/qwerty",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/register": {
+            "put": {
+                "description": "Register a new user with provided credentials",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Authy"
+                ],
+                "summary": "Register a new user",
+                "operationId": "Register",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Username is already taken",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.deleteRequestBody": {
+            "type": "object",
+            "required": [
+                "record_id"
+            ],
+            "properties": {
+                "record_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Metadata": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "models.UntypedRecord": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "description": "Data is an interface{} that can hold any type of data for the record."
+                },
+                "metadata": {
+                    "description": "Metadata is a map that can hold additional metadata for the record.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Metadata"
+                        }
+                    ]
+                },
+                "record_id": {
+                    "description": "Unique ID of a document in the DB.",
+                    "type": "string"
+                }
+            }
+        },
+        "models.UntypedRecordContent": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "description": "Data is an interface{} that can hold any type of data for the record."
+                },
+                "metadata": {
+                    "description": "Metadata is a map that can hold additional metadata for the record.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Metadata"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.UserCredentials": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

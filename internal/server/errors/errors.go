@@ -12,4 +12,6 @@ var (
 	ErrUsernameIsTaken = errors.New("provided login is already taken")
 	// ErrNoUsernameProvided is a predefined error for when username is already taken.
 	ErrUnknownCollection = errors.New("unknown collection")
+	// ErrBadCredentials is a predefined error for a case of bad credentials.
+	ErrBadCredentials = errors.New("username or password is incorrect")
 )
