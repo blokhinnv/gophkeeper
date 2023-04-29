@@ -14,4 +14,6 @@ var (
 	ErrUnknownCollection = errors.New("unknown collection")
 	// ErrBadCredentials is a predefined error for a case of bad credentials.
 	ErrBadCredentials = errors.New("username or password is incorrect")
+	// ErrRecordNotFound is a predefined error for a case when the record is not founds.
+	ErrRecordNotFound = errors.New("document was not found")
 )

@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -19,7 +20,7 @@ type StorageService interface {
 		ctx context.Context,
 		collectionName models.Collection,
 		record models.UntypedRecord,
-	) error
+	) (string, error)
 	// GetAll retrieves all untyped records for a specified collection and username.
 	GetAll(
 		ctx context.Context,
@@ -62,16 +63,17 @@ func (t *storageService) Store(
 	ctx context.Context,
 	collectionName models.Collection,
 	record models.UntypedRecord,
-) error {
+) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	collection := t.db.Collection(string(collectionName))
-	_, err := collection.InsertOne(ctx, bson.D{
+	res, err := collection.InsertOne(ctx, bson.D{
 		{Key: "username", Value: record.Username},
 		{Key: "data", Value: record.Data},
 		{Key: "metadata", Value: record.Metadata},
 	})
-	return err
+	stringObjectID := res.InsertedID.(primitive.ObjectID).Hex()
+	return stringObjectID, err
 }
 
 // GetAll retrieves all untyped records for a specified collection and username.
@@ -134,9 +136,12 @@ func (t *storageService) Update(
 		},
 	}}
 	collection := t.db.Collection(string(collectionName))
-	_, err := collection.UpdateOne(ctx, filter, upd)
+	res, err := collection.UpdateOne(ctx, filter, upd)
 	if err != nil {
 		return err
+	}
+	if res.ModifiedCount == 0 {
+		return errors.ErrRecordNotFound
 	}
 	return nil
 }
@@ -152,9 +157,13 @@ func (t *storageService) Delete(
 	defer cancel()
 	filter := bson.M{"_id": id, "username": username}
 	collection := t.db.Collection(string(collectionName))
-	_, err := collection.DeleteOne(ctx, filter)
+	res, err := collection.DeleteOne(ctx, filter)
+
 	if err != nil {
 		return err
+	}
+	if res.DeletedCount == 0 {
+		return errors.ErrRecordNotFound
 	}
 	return nil
 }

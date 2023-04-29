@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	"github.com/blokhinnv/gophkeeper/internal/server/service"
@@ -87,7 +88,7 @@ func (c *storageController) validateDataField(
 func (c *storageController) Store(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
+		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
 	record := models.UntypedRecord{
@@ -108,7 +109,7 @@ func (c *storageController) Store(ctx *gin.Context) {
 		return
 	}
 
-	err = c.service.Store(ctx.Request.Context(), collectionName, record)
+	id, err := c.service.Store(ctx.Request.Context(), collectionName, record)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
@@ -116,7 +117,13 @@ func (c *storageController) Store(ctx *gin.Context) {
 
 	ctx.String(
 		http.StatusAccepted,
-		fmt.Sprintf("Record %+v added to %v collection", record, collectionName),
+		fmt.Sprintf(
+			"Record added to %v collection: id=%v data=%v metadata=%v",
+			collectionName,
+			id,
+			record.Data,
+			record.Metadata,
+		),
 	)
 }
 
@@ -137,7 +144,7 @@ func (c *storageController) Store(ctx *gin.Context) {
 func (c *storageController) GetAll(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
+		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
 	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
@@ -172,7 +179,7 @@ func (c *storageController) GetAll(ctx *gin.Context) {
 func (c *storageController) Update(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
+		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
 	record := models.UntypedRecord{
@@ -200,14 +207,23 @@ func (c *storageController) Update(ctx *gin.Context) {
 		record.Data,
 		record.Metadata,
 	)
-	// TODO: not found
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, err.Error())
+		status := http.StatusInternalServerError
+		if errors.Is(err, srvErrors.ErrRecordNotFound) {
+			status = http.StatusBadRequest
+		}
+		ctx.String(status, err.Error())
 		return
 	}
 	ctx.String(
 		http.StatusAccepted,
-		fmt.Sprintf("Record %+v updated in %v collection", record, collectionName),
+		fmt.Sprintf(
+			"Record id=%v updated in %v collection: data=%v metadata=%v",
+			record.RecordID,
+			collectionName,
+			record.Data,
+			record.Metadata,
+		),
 	)
 }
 
@@ -234,7 +250,7 @@ type deleteRequestBody struct {
 func (c *storageController) Delete(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
+		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
 	record := deleteRequestBody{}
@@ -248,14 +264,17 @@ func (c *storageController) Delete(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	// TODO: not found
 	err = c.service.Delete(ctx.Request.Context(), collectionName, username, record.RecordID)
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, err.Error())
+		status := http.StatusInternalServerError
+		if errors.Is(err, srvErrors.ErrRecordNotFound) {
+			status = http.StatusBadRequest
+		}
+		ctx.String(status, err.Error())
 		return
 	}
 	ctx.String(
 		http.StatusOK,
-		fmt.Sprintf("Record %+v deleted from %v collection", record, collectionName),
+		fmt.Sprintf("Record id=%v deleted from %v collection", record.RecordID, collectionName),
 	)
 }
