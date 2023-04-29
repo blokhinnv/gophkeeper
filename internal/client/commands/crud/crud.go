@@ -1,3 +1,4 @@
+// Package crud provides implementations of CRUD CLI-commands.
 package crud
 
 import (

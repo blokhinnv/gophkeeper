@@ -1,3 +1,4 @@
+// Package commands provides implementations of different CLI-commands.
 package commands
 
 import (

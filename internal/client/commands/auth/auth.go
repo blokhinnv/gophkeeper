@@ -1,3 +1,4 @@
+// Package auth provides implementations of auth CLI-commands.
 package auth
 
 import (

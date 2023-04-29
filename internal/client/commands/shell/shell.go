@@ -1,3 +1,4 @@
+// Package shell provides implementation of an interactive console client.
 package shell
 
 import (

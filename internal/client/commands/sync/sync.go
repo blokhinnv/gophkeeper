@@ -1,3 +1,4 @@
+// Package sync provides implementations of sync CLI-commands.
 package sync
 
 import (
