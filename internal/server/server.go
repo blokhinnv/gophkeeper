@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -90,5 +91,15 @@ func RunServer(cfg *config.ServerConfig) {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.Run(fmt.Sprintf("127.0.0.1%v", cfg.Port))
+	// r.Run(fmt.Sprintf("127.0.0.1%v", cfg.Port))
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("127.0.0.1:%v", cfg.Port),
+		Handler: r,
+	}
+	if cfg.UseHTTPS {
+		log.Fatal(srv.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile))
+	} else {
+		log.Fatal(srv.ListenAndServe())
+	}
+
 }

@@ -2,9 +2,11 @@
 package service
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -22,9 +24,18 @@ type authService struct {
 	client *resty.Client
 }
 
+// newConfiguredClient returns a client configured for https (if required).
+func newConfiguredClient(baseURL string) *resty.Client {
+	client := resty.New().SetBaseURL(baseURL)
+	if strings.Contains(baseURL, "https") {
+		client = client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+	return client
+}
+
 // NewAuthService creates a new instance of authService with the given baseURL and returns it as an AuthService.
 func NewAuthService(baseURL string) AuthService {
-	client := resty.New().SetBaseURL(baseURL)
+	client := newConfiguredClient(baseURL)
 	return &authService{client: client}
 }
 

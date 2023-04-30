@@ -26,7 +26,7 @@ type syncService struct {
 
 // NewSyncService returns a new instance of SyncService.
 func NewSyncService(baseURL string) SyncService {
-	client := resty.New().SetBaseURL(baseURL)
+	client := newConfiguredClient(baseURL)
 	return &syncService{client: client}
 }
 

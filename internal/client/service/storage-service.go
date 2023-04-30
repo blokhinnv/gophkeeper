@@ -29,7 +29,7 @@ type storageService struct {
 
 // NewStorageService returns a new instance of StorageService.
 func NewStorageService(baseURL string) StorageService {
-	client := resty.New().SetBaseURL(baseURL)
+	client := newConfiguredClient(baseURL)
 	return &storageService{client: client}
 }
 
