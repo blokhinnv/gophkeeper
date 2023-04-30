@@ -1,16 +1,10 @@
 package service
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"crypto/sha256"
 	"encoding/json"
-	"fmt"
-	"io"
 	"os"
 
-	"golang.org/x/crypto/pbkdf2"
+	"github.com/blokhinnv/gophkeeper/pkg/encrypt"
 )
 
 // EncryptService is an interface for encrypting and decrypting data to and from files.
@@ -37,22 +31,10 @@ func (s *encryptService) ToEncryptedFile(resp *syncResponse, fileName, key strin
 		return err
 	}
 
-	aesKey, err := s.tokenToAESKey(key)
+	ciphertext, err := encrypt.EncryptBytes(data, key)
 	if err != nil {
 		return err
 	}
-
-	block, err := aes.NewCipher(aesKey)
-	if err != nil {
-		return err
-	}
-	ciphertext := make([]byte, aes.BlockSize+len(data))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return err
-	}
-	mode := cipher.NewCFBEncrypter(block, iv)
-	mode.XORKeyStream(ciphertext[aes.BlockSize:], data)
 
 	err = os.WriteFile(fileName, ciphertext, 0644)
 	if err != nil {
@@ -69,35 +51,15 @@ func (s *encryptService) FromEncryptedFile(fileName, key string) (*syncResponse,
 	if err != nil {
 		return nil, err
 	}
-	aesKey, err := s.tokenToAESKey(key)
+	decoded, err := encrypt.DecryptBytes(ciphertext, key)
 	if err != nil {
 		return nil, err
 	}
-	block, err := aes.NewCipher(aesKey)
-	if err != nil {
-		return nil, err
-	}
-	if len(ciphertext) < aes.BlockSize {
-		return nil, fmt.Errorf("ciphertext too short")
-	}
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
-
-	stream := cipher.NewCFBDecrypter(block, iv)
-
-	// XORKeyStream can work in-place if the two arguments are the same.
-	stream.XORKeyStream(ciphertext, ciphertext)
 
 	resp := new(syncResponse)
-	err = json.Unmarshal(ciphertext, &resp)
+	err = json.Unmarshal(decoded, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
-}
-
-// tokenToAESKey derives an AES key using PBKDF2 with SHA256 as the hash function.
-func (s *encryptService) tokenToAESKey(key string) ([]byte, error) {
-	aesKey := pbkdf2.Key([]byte(key), nil, 1000, 16, sha256.New)
-	return aesKey, nil
 }

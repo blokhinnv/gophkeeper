@@ -49,7 +49,7 @@ func RunServer(cfg *config.ServerConfig) {
 	// Create service and controller instances.
 	var (
 		storageService service.StorageService = service.NewStorageService(
-			client.Database(cfg.DBName),
+			client.Database(cfg.DBName), cfg.EncryptionKey,
 		)
 		utilsService service.UtilsService = service.NewUtilsService(
 			client,

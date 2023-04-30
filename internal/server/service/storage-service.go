@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/pkg/encrypt"
 )
 
 // StorageService is an interface that defines the methods to store and retrieve untyped records.
@@ -48,13 +48,15 @@ type StorageService interface {
 // storageService is a struct that implements the StorageService
 // interface and uses MongoDB for data storage.
 type storageService struct {
-	db *mongo.Database
+	db            *mongo.Database
+	encryptionKey string
 }
 
 // NewStorageService creates a new storageService instance.
-func NewStorageService(db *mongo.Database) StorageService {
+func NewStorageService(db *mongo.Database, encryptionKey string) StorageService {
 	return &storageService{
-		db: db,
+		db:            db,
+		encryptionKey: encryptionKey,
 	}
 }
 
@@ -67,9 +69,22 @@ func (t *storageService) Store(
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	collection := t.db.Collection(string(collectionName))
+
+	var encryptedData any
+	var err error
+	switch collectionName {
+	case models.TextCollection:
+		encryptedData, err = encrypt.EncryptString(record.Data.(string), t.encryptionKey)
+	default:
+		encryptedData, err = encrypt.EncryptMap(record.Data.(map[string]any), t.encryptionKey)
+	}
+	if err != nil {
+		return "", err
+	}
+
 	res, err := collection.InsertOne(ctx, bson.D{
 		{Key: "username", Value: record.Username},
-		{Key: "data", Value: record.Data},
+		{Key: "data", Value: encryptedData},
 		{Key: "metadata", Value: record.Metadata},
 	})
 	stringObjectID := res.InsertedID.(primitive.ObjectID).Hex()
@@ -99,14 +114,21 @@ func (t *storageService) GetAll(
 	for cur.Next(ctx) {
 		var r models.UntypedRecord
 		err := cur.Decode(&r)
-		fmt.Println(r)
-		v, ok := r.Data.(bson.D)
-		if ok {
-			r.Data = v.Map()
-		}
 		if err != nil {
 			return nil, err
 		}
+		var decryptedData any
+		v, ok := r.Data.(bson.D)
+		if ok {
+			decryptedData, err = encrypt.DecryptMap(v.Map(), t.encryptionKey)
+		} else {
+			decryptedData, err = encrypt.DecryptString(r.Data.(string), t.encryptionKey)
+		}
+		r.Data = decryptedData
+		if err != nil {
+			return nil, err
+		}
+
 		result = append(result, r)
 	}
 	if err := cur.Err(); err != nil {
@@ -127,11 +149,24 @@ func (t *storageService) Update(
 ) error {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
+
+	var encryptedNewData any
+	var err error
+	switch collectionName {
+	case models.TextCollection:
+		encryptedNewData, err = encrypt.EncryptString(newData.(string), t.encryptionKey)
+	default:
+		encryptedNewData, err = encrypt.EncryptMap(newData.(map[string]any), t.encryptionKey)
+	}
+	if err != nil {
+		return err
+	}
+
 	filter := bson.M{"_id": id, "username": username}
 	upd := bson.D{{
 		Key: "$set",
 		Value: bson.D{
-			{Key: "data", Value: newData},
+			{Key: "data", Value: encryptedNewData},
 			{Key: "metadata", Value: newMetadata},
 		},
 	}}
