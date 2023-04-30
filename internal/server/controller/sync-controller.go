@@ -60,8 +60,7 @@ func (s *syncController) Register(ctx *gin.Context) {
 	ctx.String(http.StatusOK, "client registered")
 }
 
-// Unregister
-// Store godoc
+// Unregister godoc
 //
 //	@Summary Unregisters an existing client from the server.
 //	@Security bearerAuth
