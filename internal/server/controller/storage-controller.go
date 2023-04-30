@@ -220,6 +220,7 @@ func (c *storageController) Update(ctx *gin.Context) {
 		ctx.String(status, err.Error())
 		return
 	}
+	go c.sync.Signal(&models.Client{Username: username})
 	ctx.String(
 		http.StatusAccepted,
 		fmt.Sprintf(
@@ -278,6 +279,7 @@ func (c *storageController) Delete(ctx *gin.Context) {
 		ctx.String(status, err.Error())
 		return
 	}
+	go c.sync.Signal(&models.Client{Username: username})
 	ctx.String(
 		http.StatusOK,
 		fmt.Sprintf("Record id=%v deleted from %v collection", record.RecordID, collectionName),
