@@ -32,15 +32,18 @@ type TextRecord struct {
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
 
-// TextInfo is an alias for text string with semantics of being base64-encoded.
-type BinaryInfo = string
+// BinaryInfo represents a binary data from a file.
+type BinaryInfo struct {
+	FileName string `validate:"required"`
+	Content  string `validate:"required,base64"`
+}
 
 // BinaryRecord represents a record that holds binary data.
 // It contains a username, binary data, and metadata.
 type BinaryRecord struct {
-	RecordID primitive.ObjectID `json:"record_id,omitempty"`                        // Unique ID of a document in the DB.
-	Username string             `json:",omitempty"`                                 // Username represents the username of the record owner.
-	Data     BinaryInfo         `                           validate:"credit_card"` // Data is the binary data in base64 for the record.
+	RecordID primitive.ObjectID `json:"record_id,omitempty"` // Unique ID of a document in the DB.
+	Username string             `json:",omitempty"`          // Username represents the username of the record owner.
+	Data     BinaryInfo         // Data is the binary data with filename and its content in base64 for the record.
 	Metadata Metadata           // Metadata is a map that can hold additional metadata for the record.
 }
 

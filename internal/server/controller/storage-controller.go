@@ -69,7 +69,13 @@ func (c *storageController) validateDataField(
 		err = validation.Validate.Struct(c)
 		return err
 	case models.BinaryCollection:
-		return validation.Validate.Var(data.(string), "base64")
+		var c models.BinaryInfo
+		err := mapstructure.Decode(data, &c)
+		if err != nil {
+			return err
+		}
+		err = validation.Validate.Struct(c)
+		return err
 	default:
 		return nil
 	}
@@ -108,7 +114,6 @@ func (c *storageController) Store(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
 	if err := c.validateDataField(record.Data, collectionName); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return

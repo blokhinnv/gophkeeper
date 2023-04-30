@@ -12,8 +12,8 @@ import (
 
 // SyncCmd represents the sync command
 var (
-	syncService    = service.NewSyncService("http://localhost:8080")
-	encryptService = service.NewEncryptService()
+	syncService    service.SyncService
+	encryptService service.EncryptService
 	SyncCmd        = &cobra.Command{
 		Use:   "sync",
 		Short: "sync command",
@@ -50,6 +50,11 @@ It also requires the "collection" flag to be set to a list of collections to syn
 				fmt.Println(err)
 				return
 			}
+		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			baseURL := cmd.Flag("server").Value.String()
+			syncService = service.NewSyncService(baseURL)
+			encryptService = service.NewEncryptService()
 		},
 	}
 )

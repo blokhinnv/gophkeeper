@@ -44,7 +44,7 @@ func init() {
 		StringVar(&cmdFlags.TextInfo, "text", "", "data for a text record")
 
 	UpsertCmd.PersistentFlags().
-		StringVar(&cmdFlags.BinaryInfo, "binary-data", "", "data for a binary record")
+		StringVar(&cmdFlags.BinaryInfo.FileName, "file", "", "path to file which will be stored")
 
 	UpsertCmd.PersistentFlags().
 		StringVar(&cmdFlags.CredentialInfo.Login, "login", "", "data for a credentials record")
