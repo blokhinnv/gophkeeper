@@ -2,11 +2,13 @@ package shell
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 	"os"
 
+	clientErr "github.com/blokhinnv/gophkeeper/internal/client/errors"
 	"github.com/blokhinnv/gophkeeper/internal/client/service"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
@@ -151,6 +153,9 @@ func (s *shellController) login() {
 	password := promptText("Password: ")
 	tok, err := s.authService.Auth(username, password)
 	if err != nil {
+		if errors.Is(err, clientErr.ErrServerUnavailable) {
+			log.Fatalln(err)
+		}
 		fmt.Println(err)
 		return
 	}
@@ -166,6 +171,9 @@ func (s *shellController) register() {
 	password := promptText("Password: ")
 	err := s.authService.Register(username, password)
 	if err != nil {
+		if errors.Is(err, clientErr.ErrServerUnavailable) {
+			log.Fatalln(err)
+		}
 		fmt.Println(err)
 		return
 	}
@@ -206,6 +214,9 @@ func (s *shellController) add() {
 	}
 	msg, err := s.storageService.Add(body, selectedCollection, s.Token)
 	if err != nil {
+		if errors.Is(err, clientErr.ErrServerUnavailable) {
+			log.Fatalln(err)
+		}
 		fmt.Println("unable to add the record: ", err)
 		return
 	}
@@ -225,6 +236,9 @@ func (s *shellController) update() {
 	}
 	msg, err := s.storageService.Update(body, selectedCollection, s.Token)
 	if err != nil {
+		if errors.Is(err, clientErr.ErrServerUnavailable) {
+			log.Fatalln(err)
+		}
 		fmt.Println("unable to update the record: ", err)
 		return
 	}
@@ -241,6 +255,9 @@ func (s *shellController) delete() {
 	body := fmt.Sprintf(`{"record_id": "%v"}`, recordID)
 	msg, err := s.storageService.Delete(body, selectedCollection, s.Token)
 	if err != nil {
+		if errors.Is(err, clientErr.ErrServerUnavailable) {
+			log.Fatalln(err)
+		}
 		fmt.Println("unable to delete the record: ", err)
 		return
 	}

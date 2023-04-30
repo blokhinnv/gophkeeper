@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
+	clientErr "github.com/blokhinnv/gophkeeper/internal/client/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -61,7 +62,7 @@ func (s *storageService) Add(
 		SetBody(body).
 		Put(fmt.Sprintf("/api/store/%v", collectionName))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %v", clientErr.ErrServerUnavailable, err)
 	}
 	if resp.StatusCode() >= http.StatusBadRequest {
 		return "", errors.New(resp.String())
@@ -81,7 +82,7 @@ func (s *storageService) Update(
 		SetBody(body).
 		Post(fmt.Sprintf("/api/store/%v", collectionName))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %v", clientErr.ErrServerUnavailable, err)
 	}
 	if resp.StatusCode() >= http.StatusBadRequest {
 		return "", errors.New(resp.String())
@@ -101,7 +102,7 @@ func (s *storageService) Delete(
 		SetBody(body).
 		Delete(fmt.Sprintf("/api/store/%v", collectionName))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %v", clientErr.ErrServerUnavailable, err)
 	}
 	if resp.StatusCode() >= http.StatusBadRequest {
 		return "", errors.New(resp.String())

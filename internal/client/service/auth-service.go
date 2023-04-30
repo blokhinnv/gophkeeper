@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/go-resty/resty/v2"
+
+	clientErr "github.com/blokhinnv/gophkeeper/internal/client/errors"
 )
 
 // AuthService is an interface that provides methods for authentication and registration.
@@ -53,7 +55,7 @@ func (s *authService) Auth(username, password string) (string, error) {
 		SetBody(fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)).
 		Put("/api/user/login")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %v", clientErr.ErrServerUnavailable, err)
 	}
 	if resp.StatusCode() >= http.StatusBadRequest {
 		r.Error = resp.String()
@@ -73,7 +75,7 @@ func (s *authService) Register(username, password string) error {
 		SetBody(fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)).
 		Put("/api/user/register")
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %v", clientErr.ErrServerUnavailable, err)
 	}
 	if resp.StatusCode() >= http.StatusBadRequest {
 		r.Error = resp.String()
