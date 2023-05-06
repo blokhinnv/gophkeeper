@@ -3,7 +3,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/blokhinnv/gophkeeper/internal/server/auth"
-	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -74,19 +74,17 @@ func (t *authService) Login(username, password string) (string, error) {
 
 	var user models.User
 	err := t.collection.FindOne(ctx, bson.D{{Key: "username", Value: username}}).Decode(&user)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return "", err
 	} else if err != nil {
 		return "", err
 	}
-	x := user.HashedPassword
-	fmt.Println(x)
 	ok, err := auth.VerifyPassword(password, user.HashedPassword)
 	if err != nil {
 		return "", err
 	}
 	if !ok {
-		return "", errors.ErrUnauthorized
+		return "", srvErrors.ErrUnauthorized
 	}
 	tok, err := auth.GenerateJWTToken(username, t.signingKey, t.expireDuration)
 	if err != nil {

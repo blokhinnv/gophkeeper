@@ -77,7 +77,7 @@ func (s *syncController) Register(ctx *gin.Context) {
 func (s *syncController) Unregister(ctx *gin.Context) {
 	username := ctx.GetString(middleware.UsernameContextValue)
 	if username == "" {
-		ctx.String(http.StatusBadRequest, errors.ErrNoUsernameProvided.Error())
+		ctx.String(http.StatusUnauthorized, errors.ErrNoUsernameProvided.Error())
 		return
 	}
 	client := &models.Client{

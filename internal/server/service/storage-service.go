@@ -18,19 +18,19 @@ type StorageService interface {
 	// Store stores a new untyped record in a specified collection.
 	Store(
 		ctx context.Context,
-		collectionName models.Collection,
+		collectionName models.CollectionName,
 		record models.UntypedRecord,
 	) (string, error)
 	// GetAll retrieves all untyped records for a specified collection and username.
 	GetAll(
 		ctx context.Context,
-		collectionName models.Collection,
+		collectionName models.CollectionName,
 		username string,
 	) ([]models.UntypedRecord, error)
 	// Updates the data and metadata of the document.
 	Update(
 		ctx context.Context,
-		collectionName models.Collection,
+		collectionName models.CollectionName,
 		username string,
 		id primitive.ObjectID,
 		newData any,
@@ -39,7 +39,7 @@ type StorageService interface {
 	// Deletes the document from collection.
 	Delete(
 		ctx context.Context,
-		collectionName models.Collection,
+		collectionName models.CollectionName,
 		username string,
 		id primitive.ObjectID,
 	) error
@@ -63,7 +63,7 @@ func NewStorageService(db *mongo.Database, encryptionKey string) StorageService 
 // Store stores a new untyped record in a specified collection.
 func (t *storageService) Store(
 	ctx context.Context,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	record models.UntypedRecord,
 ) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -94,7 +94,7 @@ func (t *storageService) Store(
 // GetAll retrieves all untyped records for a specified collection and username.
 func (t *storageService) GetAll(
 	ctx context.Context,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	username string,
 ) ([]models.UntypedRecord, error) {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -110,6 +110,7 @@ func (t *storageService) GetAll(
 	if err != nil {
 		return nil, err
 	}
+
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
 		var r models.UntypedRecord
@@ -141,7 +142,7 @@ func (t *storageService) GetAll(
 // collection with the specified name, using the new data and metadata values.
 func (t *storageService) Update(
 	ctx context.Context,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	username string,
 	id primitive.ObjectID,
 	newData any,
@@ -184,7 +185,7 @@ func (t *storageService) Update(
 // Delete removes a document from the specified collection using its ObjectID.
 func (t *storageService) Delete(
 	ctx context.Context,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	username string,
 	id primitive.ObjectID,
 ) error {

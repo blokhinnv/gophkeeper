@@ -38,7 +38,7 @@ func fileToBase64(filename string) (string, error) {
 // getBody returns the body for the upsert operation
 func getBody(
 	flags *UpsertFlags,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	recordIDHex string,
 ) (string, error) {
 	md, err := metadataFromFlags(flags.Metadata)

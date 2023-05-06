@@ -30,10 +30,10 @@ It also requires the "collection" flag to be set to a list of collections to syn
 				fmt.Println(err)
 				return
 			}
-			collections := make([]models.Collection, 0, len(collectionStringSlice))
+			collections := make([]models.CollectionName, 0, len(collectionStringSlice))
 			// loop through the []string slice and convert each element to a Collection
 			for _, s := range collectionStringSlice {
-				c, err := models.NewCollection(s)
+				c, err := models.NewCollectionName(s)
 				if err != nil {
 					fmt.Println(err)
 					return

@@ -19,7 +19,7 @@ The result is returned as a JSON string.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		key := cmd.Flag("key").Value.String()
 		file := cmd.Flag("file").Value.String()
-		collectionName, err := models.NewCollection(cmd.Flag("collection").Value.String())
+		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
 			return

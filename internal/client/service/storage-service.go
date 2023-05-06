@@ -14,13 +14,13 @@ import (
 // StorageService defines the interface for managing data storage.
 type StorageService interface {
 	// GetAll retrieves all data from a specific collection.
-	GetAll(collectionName models.Collection, data *syncResponse) any
+	GetAll(collectionName models.CollectionName, data *syncResponse) any
 	// Add adds a new item to a specific collection.
-	Add(body string, collectionName models.Collection, token string) (string, error)
+	Add(body string, collectionName models.CollectionName, token string) (string, error)
 	// Update updates an existing item in a specific collection.
-	Update(body string, collectionName models.Collection, token string) (string, error)
+	Update(body string, collectionName models.CollectionName, token string) (string, error)
 	// Delete removes an existing item from a specific collection.
-	Delete(body string, collectionName models.Collection, token string) (string, error)
+	Delete(body string, collectionName models.CollectionName, token string) (string, error)
 }
 
 // storageService is an implementation of the StorageService interface.
@@ -35,7 +35,7 @@ func NewStorageService(baseURL string) StorageService {
 }
 
 // GetAll retrieves all data from a specific collection.
-func (s *storageService) GetAll(collectionName models.Collection, data *syncResponse) any {
+func (s *storageService) GetAll(collectionName models.CollectionName, data *syncResponse) any {
 	switch collectionName {
 	case models.TextCollection:
 		return data.Text
@@ -53,7 +53,7 @@ func (s *storageService) GetAll(collectionName models.Collection, data *syncResp
 // Add adds a new item to a specific collection.
 func (s *storageService) Add(
 	body string,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().
@@ -73,7 +73,7 @@ func (s *storageService) Add(
 // Update updates an existing item in a specific collection.
 func (s *storageService) Update(
 	body string,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().
@@ -93,7 +93,7 @@ func (s *storageService) Update(
 // Delete removes an existing item from a specific collection.
 func (s *storageService) Delete(
 	body string,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().

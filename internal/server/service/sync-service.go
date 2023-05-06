@@ -75,3 +75,8 @@ func (s *syncService) Signal(client *models.Client) {
 		}
 	}
 }
+
+// getClientAddresses returns addresses for the username provided.
+func (m *syncService) getClientAddresses(username string) []string {
+	return m.clients[username]
+}

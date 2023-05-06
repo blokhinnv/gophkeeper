@@ -19,7 +19,7 @@ The command will construct a request body using the provided record ID, and send
 	Run: func(cmd *cobra.Command, args []string) {
 		token := cmd.Flag("token").Value.String()
 		id := cmd.Flag("id").Value.String()
-		collectionName, err := models.NewCollection(cmd.Flag("collection").Value.String())
+		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
 			return

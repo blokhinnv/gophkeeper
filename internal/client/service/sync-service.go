@@ -14,7 +14,7 @@ import (
 // SyncService defines the interface for syncing data.
 type SyncService interface {
 	// Sync syncs data from collections.
-	Sync(token string, collections []models.Collection) (*syncResponse, error)
+	Sync(token string, collections []models.CollectionName) (*syncResponse, error)
 	Register(token, sockAddr string) (string, error)
 	Unregister(token, sockAddr string) (string, error)
 }
@@ -41,7 +41,7 @@ type syncResponse struct {
 // Sync syncs data from collections.
 func (s *syncService) Sync(
 	token string,
-	collectionNames []models.Collection,
+	collectionNames []models.CollectionName,
 ) (*syncResponse, error) {
 	r := &syncResponse{}
 	for _, collectionName := range collectionNames {

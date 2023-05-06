@@ -12,16 +12,19 @@ import (
 )
 
 // tokenToAESKey derives an AES key using PBKDF2 with SHA256 as the hash function.
-func tokenToAESKey(key string) ([]byte, error) {
+func tokenToAESKey(key string) []byte {
 	aesKey := pbkdf2.Key([]byte(key), nil, 1000, 16, sha256.New)
-	return aesKey, nil
+	return aesKey
 }
 
 func EncryptBytes(data []byte, key string) ([]byte, error) {
-	aesKey, err := tokenToAESKey(key)
-	if err != nil {
-		return nil, err
+	if key == "" {
+		return nil, fmt.Errorf("empty key")
 	}
+	if len(data) == 0 {
+		return nil, fmt.Errorf("empty data")
+	}
+	aesKey := tokenToAESKey(key)
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
 		return nil, err
@@ -38,10 +41,7 @@ func EncryptBytes(data []byte, key string) ([]byte, error) {
 }
 
 func DecryptBytes(encryptedData []byte, key string) ([]byte, error) {
-	aesKey, err := tokenToAESKey(key)
-	if err != nil {
-		return nil, err
-	}
+	aesKey := tokenToAESKey(key)
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
 		return nil, err

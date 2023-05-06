@@ -10,7 +10,7 @@ import (
 // getBody function is responsible for generating the body of a request to be sent to the server.
 // It takes in a models.Collection parameter and a boolean value indicating if request ID is required.
 // It returns a string containing the encoded body and an error if one occurs.
-func getBody(collection models.Collection, requestID bool) (string, error) {
+func getBody(collection models.CollectionName, requestID bool) (string, error) {
 	var data any
 
 	var recordIDHex string = "000000000000000000000000"

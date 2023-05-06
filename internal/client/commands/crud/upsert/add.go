@@ -18,7 +18,7 @@ different types of data. The command constructs the record body and sends it
 to the server for storage.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		token := cmd.Flag("token").Value.String()
-		collectionName, err := models.NewCollection(cmd.Flag("collection").Value.String())
+		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
 			return

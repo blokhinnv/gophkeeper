@@ -49,7 +49,7 @@ func NewStorageController(
 // validateDataField validates the data field of the untyped record based on the collection name.
 func (c *storageController) validateDataField(
 	data any,
-	collectionName models.Collection,
+	collectionName models.CollectionName,
 ) error {
 	switch collectionName {
 	case models.CredentialsCollection:
@@ -109,7 +109,7 @@ func (c *storageController) Store(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	collectionName, err := models.NewCollectionName(ctx.Param("collectionName"))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
@@ -157,7 +157,7 @@ func (c *storageController) GetAll(ctx *gin.Context) {
 		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
-	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	collectionName, err := models.NewCollectionName(ctx.Param("collectionName"))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
@@ -199,7 +199,7 @@ func (c *storageController) Update(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	collectionName, err := models.NewCollectionName(ctx.Param("collectionName"))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
@@ -270,7 +270,7 @@ func (c *storageController) Delete(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	collectionName, err := models.NewCollection(ctx.Param("collectionName"))
+	collectionName, err := models.NewCollectionName(ctx.Param("collectionName"))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return

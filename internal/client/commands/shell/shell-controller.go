@@ -182,7 +182,7 @@ func (s *shellController) register() {
 // sync retrieves the data from the server and stores it in the shell controller.
 func (s *shellController) sync() {
 	fmt.Println("sync....")
-	syncResp, err := s.syncService.Sync(s.Token, models.AllowedCollection)
+	syncResp, err := s.syncService.Sync(s.Token, models.AllowedCollectionNames)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -204,8 +204,8 @@ func (s *shellController) show() {
 // add prompts the user for the required fields to add a new record
 // to the selected collection
 func (s *shellController) add() {
-	selectedCollection := models.Collection(
-		selectItem("Select collection: ", models.AllowedCollection),
+	selectedCollection := models.CollectionName(
+		selectItem("Select collection: ", models.AllowedCollectionNames),
 	)
 	body, err := getBody(selectedCollection, false)
 	if err != nil {
@@ -226,8 +226,8 @@ func (s *shellController) add() {
 // update prompts the user for the required fields to update an existing
 // record in the selected collection.
 func (s *shellController) update() {
-	selectedCollection := models.Collection(
-		selectItem("Select collection: ", models.AllowedCollection),
+	selectedCollection := models.CollectionName(
+		selectItem("Select collection: ", models.AllowedCollectionNames),
 	)
 	body, err := getBody(selectedCollection, true)
 	if err != nil {
@@ -248,8 +248,8 @@ func (s *shellController) update() {
 // delete prompts the user for the record ID of the record to delete
 // from the selected collection.
 func (s *shellController) delete() {
-	selectedCollection := models.Collection(
-		selectItem("Select collection: ", models.AllowedCollection),
+	selectedCollection := models.CollectionName(
+		selectItem("Select collection: ", models.AllowedCollectionNames),
 	)
 	recordID := promptText("Record ID: ")
 	body := fmt.Sprintf(`{"record_id": "%v"}`, recordID)

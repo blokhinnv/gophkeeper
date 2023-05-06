@@ -3,6 +3,7 @@ package validation
 
 import (
 	"regexp"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -17,13 +18,23 @@ func validateExpirationDate(fl validator.FieldLevel) bool {
 	str := fl.Field().String()
 
 	// Define the pattern to match
-	pattern := `\d\d/\d\d`
+	pattern := `(?P<Month>\d\d)/(?P<Year>\d\d)`
 
 	// Use regex to match the pattern
 	re := regexp.MustCompile(pattern)
-	matches := re.MatchString(str)
-
-	return matches
+	submatch := re.FindStringSubmatch(str)
+	if len(submatch) != 3 {
+		return false
+	}
+	// Check month
+	monthInt, err := strconv.Atoi(submatch[1])
+	if err != nil {
+		return false
+	}
+	if monthInt >= 1 && monthInt <= 12 {
+		return true
+	}
+	return false
 }
 
 // init registers the validateExpirationDate function as a custom validator with
