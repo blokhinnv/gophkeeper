@@ -17,6 +17,8 @@ type SyncService interface {
 	Sync(token string, collections []models.CollectionName) (*syncResponse, error)
 	Register(token, sockAddr string) (string, error)
 	Unregister(token, sockAddr string) (string, error)
+	// GetClient returns the service's client.
+	GetClient() *resty.Client
 }
 
 // syncService implements the SyncService interface.
@@ -102,4 +104,9 @@ func (s *syncService) Unregister(token, sockAddr string) (string, error) {
 		return "", errors.New(resp.String())
 	}
 	return resp.String(), nil
+}
+
+// GetClient returns the service's client.
+func (s *syncService) GetClient() *resty.Client {
+	return s.client
 }

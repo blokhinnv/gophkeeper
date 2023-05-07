@@ -21,6 +21,8 @@ type StorageService interface {
 	Update(body string, collectionName models.CollectionName, token string) (string, error)
 	// Delete removes an existing item from a specific collection.
 	Delete(body string, collectionName models.CollectionName, token string) (string, error)
+	// GetClient returns the service's client.
+	GetClient() *resty.Client
 }
 
 // storageService is an implementation of the StorageService interface.
@@ -108,4 +110,9 @@ func (s *storageService) Delete(
 		return "", errors.New(resp.String())
 	}
 	return resp.String(), nil
+}
+
+// GetClient returns the service's client.
+func (s *storageService) GetClient() *resty.Client {
+	return s.client
 }

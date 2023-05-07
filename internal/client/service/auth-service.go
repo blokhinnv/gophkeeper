@@ -19,6 +19,8 @@ type AuthService interface {
 	Auth(username, password string) (string, error)
 	// Register creates a new user with the given username and password.
 	Register(username, password string) error
+	// GetClient returns the service's client.
+	GetClient() *resty.Client
 }
 
 // authService is a concrete implementation of AuthService.
@@ -85,4 +87,9 @@ func (s *authService) Register(username, password string) error {
 		return errors.New(r.Error)
 	}
 	return nil
+}
+
+// GetClient returns the service's client.
+func (s *authService) GetClient() *resty.Client {
+	return s.client
 }
