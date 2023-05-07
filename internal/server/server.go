@@ -74,6 +74,7 @@ func RunServer(cfg *config.ServerConfig) {
 	)
 
 	// Set up routes and middleware.
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	public := r.Group("/api")
