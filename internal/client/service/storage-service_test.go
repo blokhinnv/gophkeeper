@@ -10,26 +10,27 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
+	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 func TestStorageService_GetAll(t *testing.T) {
 	baseURL := "https://example.com"
 	s := NewStorageService(baseURL)
-	data := &syncResponse{
-		Text: []models.TextRecord{
+	data := &clientModels.SyncResponse{
+		Text: []srvrModels.TextRecord{
 			{
 				RecordID: primitive.NewObjectID(),
 				Username: "blokhinnv",
-				Data:     models.TextInfo("some data..."),
+				Data:     srvrModels.TextInfo("some data..."),
 			},
 		},
 	}
 
 	t.Run("get_text", func(t *testing.T) {
-		r := s.GetAll(models.TextCollection, data)
+		r := s.GetAll(srvrModels.TextCollection, data)
 		// Assert
-		texts, ok := r.([]models.TextRecord)
+		texts, ok := r.([]srvrModels.TextRecord)
 		if !ok {
 			t.Errorf("Expected result to be of type []models.Text, but got %T", r)
 		}
@@ -43,11 +44,11 @@ func TestStorageService_GetAll(t *testing.T) {
 		}
 	})
 	t.Run("get_creds", func(t *testing.T) {
-		r := s.GetAll(models.CredentialsCollection, data)
+		r := s.GetAll(srvrModels.CredentialsCollection, data)
 		assert.Nil(t, r)
 	})
 	t.Run("other", func(t *testing.T) {
-		r := s.GetAll(models.CollectionName("other"), data)
+		r := s.GetAll(srvrModels.CollectionName("other"), data)
 		assert.Nil(t, r)
 	})
 }
@@ -67,20 +68,20 @@ func TestStorageService_Add(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodPut,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(200, "ok"),
 		)
 
-		body := models.TextRecord{
+		body := srvrModels.TextRecord{
 			RecordID: primitive.NewObjectID(),
 			Username: "blokhinnv",
-			Data:     models.TextInfo("some data..."),
+			Data:     srvrModels.TextInfo("some data..."),
 		}
 
 		bodyEncoded, err := json.Marshal(body)
 		assert.NoError(t, err)
 
-		resp, err := s.Add(string(bodyEncoded), models.TextCollection, "some-token...")
+		resp, err := s.Add(string(bodyEncoded), srvrModels.TextCollection, "some-token...")
 		assert.NoError(t, err)
 		assert.Equal(t, "ok", resp)
 	})
@@ -89,13 +90,13 @@ func TestStorageService_Add(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodPut,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(400, "bad"),
 		)
 
 		bodyEncoded := `{"bad"}`
 
-		resp, err := s.Add(string(bodyEncoded), models.TextCollection, "some-token...")
+		resp, err := s.Add(string(bodyEncoded), srvrModels.TextCollection, "some-token...")
 		assert.Equal(t, "", resp)
 		assert.Equal(t, "bad", err.Error())
 	})
@@ -116,20 +117,20 @@ func TestStorageService_Update(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodPost,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(200, "ok"),
 		)
 
-		body := models.TextRecord{
+		body := srvrModels.TextRecord{
 			RecordID: primitive.NewObjectID(),
 			Username: "blokhinnv",
-			Data:     models.TextInfo("some data..."),
+			Data:     srvrModels.TextInfo("some data..."),
 		}
 
 		bodyEncoded, err := json.Marshal(body)
 		assert.NoError(t, err)
 
-		resp, err := s.Update(string(bodyEncoded), models.TextCollection, "some-token...")
+		resp, err := s.Update(string(bodyEncoded), srvrModels.TextCollection, "some-token...")
 		assert.NoError(t, err)
 		assert.Equal(t, "ok", resp)
 	})
@@ -138,13 +139,13 @@ func TestStorageService_Update(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodPost,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(400, "bad"),
 		)
 
 		bodyEncoded := `{"bad"}`
 
-		resp, err := s.Update(string(bodyEncoded), models.TextCollection, "some-token...")
+		resp, err := s.Update(string(bodyEncoded), srvrModels.TextCollection, "some-token...")
 		assert.Equal(t, "", resp)
 		assert.Equal(t, "bad", err.Error())
 	})
@@ -164,13 +165,13 @@ func TestStorageService_Delete(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodDelete,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(200, "ok"),
 		)
 
 		body := fmt.Sprintf(`{"record_id": "%v"}`, primitive.NewObjectID())
 
-		resp, err := s.Delete(body, models.TextCollection, "some-token...")
+		resp, err := s.Delete(body, srvrModels.TextCollection, "some-token...")
 		assert.NoError(t, err)
 		assert.Equal(t, "ok", resp)
 	})
@@ -179,12 +180,12 @@ func TestStorageService_Delete(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodDelete,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			httpmock.NewStringResponder(400, "bad"),
 		)
 
 		body := fmt.Sprintf(`{"qwe": "%v"}`, primitive.NewObjectID())
-		resp, err := s.Delete(body, models.TextCollection, "some-token...")
+		resp, err := s.Delete(body, srvrModels.TextCollection, "some-token...")
 		assert.Equal(t, "", resp)
 		assert.Equal(t, "bad", err.Error())
 	})

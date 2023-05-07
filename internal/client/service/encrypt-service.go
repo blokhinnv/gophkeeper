@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/blokhinnv/gophkeeper/internal/client/models"
 	"github.com/blokhinnv/gophkeeper/pkg/encrypt"
 )
 
 // EncryptService is an interface for encrypting and decrypting data to and from files.
 type EncryptService interface {
-	ToEncryptedFile(resp *syncResponse, fileName, password string) error
-	FromEncryptedFile(fileName, password string) (*syncResponse, error)
+	ToEncryptedFile(resp *models.SyncResponse, fileName, password string) error
+	FromEncryptedFile(fileName, password string) (*models.SyncResponse, error)
 }
 
 // encryptService is the implementation of the EncryptService interface.
@@ -22,10 +23,10 @@ func NewEncryptService() EncryptService {
 	return &encryptService{}
 }
 
-// ToEncryptedFile encrypts and writes syncResponse data to a file.
+// ToEncryptedFile encrypts and writes models.SyncResponse data to a file.
 // It uses AES encryption with the given password to encrypt the data.
 // Returns an error if encryption or writing to file fails.
-func (s *encryptService) ToEncryptedFile(resp *syncResponse, fileName, key string) error {
+func (s *encryptService) ToEncryptedFile(resp *models.SyncResponse, fileName, key string) error {
 	data, err := json.Marshal(resp)
 	if err != nil {
 		return err
@@ -43,10 +44,10 @@ func (s *encryptService) ToEncryptedFile(resp *syncResponse, fileName, key strin
 	return nil
 }
 
-// FromEncryptedFile reads and decrypts syncResponse data from a file.
+// FromEncryptedFile reads and decrypts models.SyncResponse data from a file.
 // It uses AES encryption with the given password to decrypt the data.
 // Returns an error if decryption or reading from file fails.
-func (s *encryptService) FromEncryptedFile(fileName, key string) (*syncResponse, error) {
+func (s *encryptService) FromEncryptedFile(fileName, key string) (*models.SyncResponse, error) {
 	ciphertext, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (s *encryptService) FromEncryptedFile(fileName, key string) (*syncResponse,
 		return nil, err
 	}
 
-	resp := new(syncResponse)
+	resp := new(models.SyncResponse)
 	err = json.Unmarshal(decoded, &resp)
 	if err != nil {
 		return nil, err

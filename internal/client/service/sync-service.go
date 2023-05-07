@@ -7,14 +7,15 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
+	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
 	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // SyncService defines the interface for syncing data.
 type SyncService interface {
 	// Sync syncs data from collections.
-	Sync(token string, collections []models.CollectionName) (*syncResponse, error)
+	Sync(token string, collections []srvrModels.CollectionName) (*clientModels.SyncResponse, error)
 	Register(token, sockAddr string) (string, error)
 	Unregister(token, sockAddr string) (string, error)
 	// GetClient returns the service's client.
@@ -32,32 +33,24 @@ func NewSyncService(baseURL string) SyncService {
 	return &syncService{client: client}
 }
 
-// syncResponse defines the response from the SyncService Sync method.
-type syncResponse struct {
-	Text       []models.TextRecord
-	Binary     []models.BinaryRecord
-	Card       []models.CardRecord
-	Credential []models.CredentialRecord
-}
-
 // Sync syncs data from collections.
 func (s *syncService) Sync(
 	token string,
-	collectionNames []models.CollectionName,
-) (*syncResponse, error) {
-	r := &syncResponse{}
+	collectionNames []srvrModels.CollectionName,
+) (*clientModels.SyncResponse, error) {
+	r := &clientModels.SyncResponse{}
 	for _, collectionName := range collectionNames {
 		req := s.client.R().
 			SetHeader("Content-Type", "application/json").
 			SetHeader("Authorization", fmt.Sprintf("Bearer: %v", token))
 		switch collectionName {
-		case models.TextCollection:
+		case srvrModels.TextCollection:
 			req = req.SetResult(&r.Text)
-		case models.BinaryCollection:
+		case srvrModels.BinaryCollection:
 			req = req.SetResult(&r.Binary)
-		case models.CardCollection:
+		case srvrModels.CardCollection:
 			req = req.SetResult(&r.Card)
-		case models.CredentialsCollection:
+		case srvrModels.CredentialsCollection:
 			req = req.SetResult(&r.Credential)
 		default:
 			return nil, fmt.Errorf("%w: %v", srvErrors.ErrUnknownCollection, collectionName)

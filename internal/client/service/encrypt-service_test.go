@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
+	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 func TestEncryptService_ToEncryptedFile(t *testing.T) {
@@ -19,12 +20,12 @@ func TestEncryptService_ToEncryptedFile(t *testing.T) {
 	}
 	defer os.Remove(tmpfile.Name())
 
-	data := &syncResponse{
-		Text: []models.TextRecord{
+	data := &clientModels.SyncResponse{
+		Text: []srvrModels.TextRecord{
 			{
 				RecordID: primitive.NewObjectID(),
 				Username: "blokhinnv",
-				Data:     models.TextInfo("some data..."),
+				Data:     srvrModels.TextInfo("some data..."),
 			},
 		},
 	}
@@ -56,12 +57,12 @@ func TestEncryptService_FromEncryptedFile(t *testing.T) {
 	}
 	defer os.Remove(tmpfile.Name())
 
-	data := &syncResponse{
-		Text: []models.TextRecord{
+	data := &clientModels.SyncResponse{
+		Text: []srvrModels.TextRecord{
 			{
 				RecordID: primitive.NewObjectID(),
 				Username: "blokhinnv",
-				Data:     models.TextInfo("some data..."),
+				Data:     srvrModels.TextInfo("some data..."),
 			},
 		},
 	}

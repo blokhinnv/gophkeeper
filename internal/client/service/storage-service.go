@@ -8,19 +8,20 @@ import (
 	"github.com/go-resty/resty/v2"
 
 	clientErr "github.com/blokhinnv/gophkeeper/internal/client/errors"
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
+	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // StorageService defines the interface for managing data storage.
 type StorageService interface {
 	// GetAll retrieves all data from a specific collection.
-	GetAll(collectionName models.CollectionName, data *syncResponse) any
+	GetAll(collectionName srvrModels.CollectionName, data *clientModels.SyncResponse) any
 	// Add adds a new item to a specific collection.
-	Add(body string, collectionName models.CollectionName, token string) (string, error)
+	Add(body string, collectionName srvrModels.CollectionName, token string) (string, error)
 	// Update updates an existing item in a specific collection.
-	Update(body string, collectionName models.CollectionName, token string) (string, error)
+	Update(body string, collectionName srvrModels.CollectionName, token string) (string, error)
 	// Delete removes an existing item from a specific collection.
-	Delete(body string, collectionName models.CollectionName, token string) (string, error)
+	Delete(body string, collectionName srvrModels.CollectionName, token string) (string, error)
 	// GetClient returns the service's client.
 	GetClient() *resty.Client
 }
@@ -37,15 +38,18 @@ func NewStorageService(baseURL string) StorageService {
 }
 
 // GetAll retrieves all data from a specific collection.
-func (s *storageService) GetAll(collectionName models.CollectionName, data *syncResponse) any {
+func (s *storageService) GetAll(
+	collectionName srvrModels.CollectionName,
+	data *clientModels.SyncResponse,
+) any {
 	switch collectionName {
-	case models.TextCollection:
+	case srvrModels.TextCollection:
 		return data.Text
-	case models.BinaryCollection:
+	case srvrModels.BinaryCollection:
 		return data.Binary
-	case models.CardCollection:
+	case srvrModels.CardCollection:
 		return data.Card
-	case models.CredentialsCollection:
+	case srvrModels.CredentialsCollection:
 		return data.Credential
 	default:
 		return nil
@@ -55,7 +59,7 @@ func (s *storageService) GetAll(collectionName models.CollectionName, data *sync
 // Add adds a new item to a specific collection.
 func (s *storageService) Add(
 	body string,
-	collectionName models.CollectionName,
+	collectionName srvrModels.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().
@@ -75,7 +79,7 @@ func (s *storageService) Add(
 // Update updates an existing item in a specific collection.
 func (s *storageService) Update(
 	body string,
-	collectionName models.CollectionName,
+	collectionName srvrModels.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().
@@ -95,7 +99,7 @@ func (s *storageService) Update(
 // Delete removes an existing item from a specific collection.
 func (s *storageService) Delete(
 	body string,
-	collectionName models.CollectionName,
+	collectionName srvrModels.CollectionName,
 	token string,
 ) (string, error) {
 	resp, err := s.client.R().

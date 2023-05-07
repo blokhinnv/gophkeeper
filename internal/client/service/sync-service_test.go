@@ -9,8 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
 	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 func TestSyncService_Sync(t *testing.T) {
@@ -25,36 +26,39 @@ func TestSyncService_Sync(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		httpmock.Reset()
-		collectionNames := []models.CollectionName{
-			models.TextCollection,
-			models.BinaryCollection,
-			models.CardCollection,
-			models.CredentialsCollection,
+		collectionNames := []srvrModels.CollectionName{
+			srvrModels.TextCollection,
+			srvrModels.BinaryCollection,
+			srvrModels.CardCollection,
+			srvrModels.CredentialsCollection,
 		}
-		expectedResult := &syncResponse{
-			Text: []models.TextRecord{
-				{RecordID: primitive.NewObjectID(), Data: models.TextInfo("some-text...")},
+		expectedResult := &clientModels.SyncResponse{
+			Text: []srvrModels.TextRecord{
+				{RecordID: primitive.NewObjectID(), Data: srvrModels.TextInfo("some-text...")},
 			},
-			Binary: []models.BinaryRecord{
+			Binary: []srvrModels.BinaryRecord{
 				{
 					RecordID: primitive.NewObjectID(),
-					Data:     models.BinaryInfo{FileName: "test.test", Content: "cXdlcXdld3Fl"},
+					Data:     srvrModels.BinaryInfo{FileName: "test.test", Content: "cXdlcXdld3Fl"},
 				},
 			},
-			Card: []models.CardRecord{
+			Card: []srvrModels.CardRecord{
 				{
 					RecordID: primitive.NewObjectID(),
-					Data: models.CardInfo{
+					Data: srvrModels.CardInfo{
 						CardNumber:     "1234 1234 1234 1234",
 						CVV:            "234",
 						ExpirationDate: "01/12",
 					},
 				},
 			},
-			Credential: []models.CredentialRecord{
+			Credential: []srvrModels.CredentialRecord{
 				{
 					RecordID: primitive.NewObjectID(),
-					Data:     models.CredentialInfo{Login: "some-login", Password: "some-password"},
+					Data: srvrModels.CredentialInfo{
+						Login:    "some-login",
+						Password: "some-password",
+					},
 				},
 			},
 		}
@@ -72,22 +76,22 @@ func TestSyncService_Sync(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			responderText,
 		)
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.BinaryCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.BinaryCollection),
 			responderBinary,
 		)
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.CardCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.CardCollection),
 			responderCard,
 		)
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.CredentialsCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.CredentialsCollection),
 			responderCredential,
 		)
 
@@ -100,13 +104,13 @@ func TestSyncService_Sync(t *testing.T) {
 
 	t.Run("unauthorized", func(t *testing.T) {
 		httpmock.Reset()
-		collectionNames := []models.CollectionName{
-			models.TextCollection,
+		collectionNames := []srvrModels.CollectionName{
+			srvrModels.TextCollection,
 		}
 		responder := httpmock.NewStringResponder(http.StatusUnauthorized, "")
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			responder,
 		)
 
@@ -117,19 +121,19 @@ func TestSyncService_Sync(t *testing.T) {
 	})
 	t.Run("bad_request", func(t *testing.T) {
 		httpmock.Reset()
-		collectionNames := []models.CollectionName{
-			models.TextCollection,
+		collectionNames := []srvrModels.CollectionName{
+			srvrModels.TextCollection,
 		}
 		responder := httpmock.NewStringResponder(http.StatusUnauthorized, "")
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			responder,
 		)
 
-		expectedResult := &syncResponse{
-			Text: []models.TextRecord{
-				{RecordID: primitive.NewObjectID(), Data: models.TextInfo("text1")},
+		expectedResult := &clientModels.SyncResponse{
+			Text: []srvrModels.TextRecord{
+				{RecordID: primitive.NewObjectID(), Data: srvrModels.TextInfo("text1")},
 			},
 		}
 
@@ -137,7 +141,7 @@ func TestSyncService_Sync(t *testing.T) {
 		assert.NoError(t, err)
 		httpmock.RegisterResponder(
 			http.MethodGet,
-			fmt.Sprintf("%v/api/store/%v", baseURL, models.TextCollection),
+			fmt.Sprintf("%v/api/store/%v", baseURL, srvrModels.TextCollection),
 			responder,
 		)
 		// Invoke Sync method
