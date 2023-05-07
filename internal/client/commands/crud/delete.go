@@ -16,21 +16,22 @@ var deleteCmd = &cobra.Command{
 It requires a valid authentication token and the record ID to be deleted as a flag.
 Provide the name of the collection to delete the record from as an argument.
 The command will construct a request body using the provided record ID, and send the DELETE request to the remote service.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		token := cmd.Flag("token").Value.String()
 		id := cmd.Flag("id").Value.String()
 		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		body := fmt.Sprintf(`{"record_id": "%v"}`, id)
 		msg, err := storageService.Delete(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		fmt.Println(msg)
+		return nil
 	},
 }
 

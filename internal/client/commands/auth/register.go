@@ -14,14 +14,15 @@ var registerCmd = &cobra.Command{
 It requires a username and password flag to be set.
 Upon successful registration, the command will return no output.
 If the registration fails, an error message will be printed to the console.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		username := cmd.Flag("username").Value.String()
 		password := cmd.Flag("password").Value.String()
 		err := authService.Register(username, password)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
+		return nil
 	},
 }
 

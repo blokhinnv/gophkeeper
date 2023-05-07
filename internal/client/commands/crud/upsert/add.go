@@ -16,25 +16,26 @@ var addCmd = &cobra.Command{
 It requires a valid JWT token for authorization and accepts various flags for
 different types of data. The command constructs the record body and sends it
 to the server for storage.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		token := cmd.Flag("token").Value.String()
 		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 
 		body, err := getBody(&cmdFlags, collectionName, "000000000000000000000000")
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		msg, err := storageService.Add(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		fmt.Println(msg)
+		return nil
 	},
 }
 

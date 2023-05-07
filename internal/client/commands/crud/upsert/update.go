@@ -15,26 +15,27 @@ var updateCmd = &cobra.Command{
 	Long: `The update command updates an existing record in a specified collection.
 It requires a valid token, a collection name, and the id of the record to be updated.
 It also expects a valid JSON body that contains the updated information for the record.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		token := cmd.Flag("token").Value.String()
 		id := cmd.Flag("id").Value.String()
 		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 
 		body, err := getBody(&cmdFlags, collectionName, id)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		msg, err := storageService.Update(body, collectionName, token)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		fmt.Println(msg)
+		return nil
 
 	},
 }

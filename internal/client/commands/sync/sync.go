@@ -21,14 +21,14 @@ var (
 the client and the remote storage service. It accepts the "token", "key",
 and "file" flags to authenticate and encrypt the data, respectively.
 It also requires the "collection" flag to be set to a list of collections to sync.`,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			token := cmd.Flag("token").Value.String()
 			key := cmd.Flag("key").Value.String()
 			file := cmd.Flag("file").Value.String()
 			collectionStringSlice, err := cmd.Flags().GetStringSlice("collection")
 			if err != nil {
 				fmt.Println(err)
-				return
+				return err
 			}
 			collections := make([]models.CollectionName, 0, len(collectionStringSlice))
 			// loop through the []string slice and convert each element to a Collection
@@ -36,20 +36,21 @@ It also requires the "collection" flag to be set to a list of collections to syn
 				c, err := models.NewCollectionName(s)
 				if err != nil {
 					fmt.Println(err)
-					return
+					return err
 				}
 				collections = append(collections, c)
 			}
 			resp, err := syncService.Sync(token, collections)
 			if err != nil {
 				fmt.Println(err)
-				return
+				return err
 			}
 			err = encryptService.ToEncryptedFile(resp, file, key)
 			if err != nil {
 				fmt.Println(err)
-				return
+				return err
 			}
+			return err
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			baseURL := cmd.Flag("server").Value.String()

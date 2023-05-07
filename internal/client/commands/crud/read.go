@@ -16,28 +16,29 @@ var readCmd = &cobra.Command{
 	Long: `The readCmd command retrieves all documents from a specified collection.
 It accepts flags to decrypt the data from an encrypted file.
 The result is returned as a JSON string.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		key := cmd.Flag("key").Value.String()
 		file := cmd.Flag("file").Value.String()
 		collectionName, err := models.NewCollectionName(cmd.Flag("collection").Value.String())
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 
 		decrypted, err := encryptService.FromEncryptedFile(file, key)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 
 		res := storageService.GetAll(collectionName, decrypted)
 		resJSON, err := json.MarshalIndent(res, "", "  ")
 		if err != nil {
 			fmt.Println(err)
-			return
+			return err
 		}
 		fmt.Printf("Result: %s\n", resJSON)
+		return nil
 	},
 }
 
