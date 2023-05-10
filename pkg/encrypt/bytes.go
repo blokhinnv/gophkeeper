@@ -1,3 +1,4 @@
+// Package encrypt provides functions for encrypting the data.
 package encrypt
 
 import (

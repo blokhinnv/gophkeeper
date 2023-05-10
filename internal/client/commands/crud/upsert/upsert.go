@@ -22,9 +22,11 @@ type UpsertFlags struct {
 }
 
 var (
-	cmdFlags       = UpsertFlags{}
+	// cmdFlags is a set of flags for an upsert command.
+	cmdFlags = UpsertFlags{}
+	// storageService is a storage service used for a command implementation.
 	storageService service.StorageService
-	// UpsertCmd represents the item command
+	// UpsertCmd represents the upsert command.
 	UpsertCmd = &cobra.Command{
 		Use:   "upsert",
 		Short: "upsert command",

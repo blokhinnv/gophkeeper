@@ -1,3 +1,4 @@
+// Package models provides common data structures used by the client.
 package models
 
 import "github.com/blokhinnv/gophkeeper/internal/server/models"

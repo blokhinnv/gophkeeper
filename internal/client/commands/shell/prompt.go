@@ -3,8 +3,9 @@ package shell
 import (
 	"log"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	"github.com/manifoldco/promptui"
+
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // promptText prompts the user for a text input and returns the text entered.

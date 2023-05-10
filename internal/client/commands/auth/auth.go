@@ -7,10 +7,11 @@ import (
 	"github.com/blokhinnv/gophkeeper/internal/client/service"
 )
 
-// AuthCmd represents the auth command
 var (
+	// authService is a service used for a command implementation.
 	authService service.AuthService
-	AuthCmd     = &cobra.Command{
+	// AuthCmd represents the auth command.
+	AuthCmd = &cobra.Command{
 		Use:   "auth",
 		Short: "authorization and registration commands",
 		Long:  "A parent command for login and register.",

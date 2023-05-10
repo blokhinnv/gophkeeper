@@ -69,6 +69,7 @@ func (s *syncService) Sync(
 	return r, nil
 }
 
+// Register registers a socket address with the synchronization service.
 func (s *syncService) Register(token, sockAddr string) (string, error) {
 	req := s.client.R().
 		SetHeader("Content-Type", "application/json").
@@ -84,6 +85,7 @@ func (s *syncService) Register(token, sockAddr string) (string, error) {
 	return resp.String(), nil
 }
 
+// Unregister removes a registered socket address from the synchronization service.
 func (s *syncService) Unregister(token, sockAddr string) (string, error) {
 	req := s.client.R().
 		SetHeader("Content-Type", "application/json").

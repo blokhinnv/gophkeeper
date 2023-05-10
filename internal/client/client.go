@@ -3,6 +3,7 @@ package client
 
 import "github.com/blokhinnv/gophkeeper/internal/client/commands"
 
+// Entry point for a client.
 func RunClient() {
 	commands.Execute()
 }

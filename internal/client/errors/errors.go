@@ -1,3 +1,4 @@
+// Package errors contains predefined client errors.
 package errors
 
 import "errors"

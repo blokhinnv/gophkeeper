@@ -10,11 +10,13 @@ import (
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
-// SyncCmd represents the sync command
 var (
-	syncService    service.SyncService
+	// syncService is a sync service used for a command implementation.
+	syncService service.SyncService
+	// encryptService is a encrypt service used for a command implementation.
 	encryptService service.EncryptService
-	SyncCmd        = &cobra.Command{
+	// SyncCmd represents the sync command
+	SyncCmd = &cobra.Command{
 		Use:   "sync",
 		Short: "sync command",
 		Long: `The SyncCmd command performs a synchronization operation between

@@ -9,9 +9,11 @@ import (
 )
 
 var (
+	// storageService is a storage service used for a command implementation.
 	storageService service.StorageService
+	// storageService is a encryption service used for a command implementation.
 	encryptService service.EncryptService
-	// CRUDCmd represents the CRUD command
+	// CRUDCmd represents the CRUD command.
 	CRUDCmd = &cobra.Command{
 		Use:   "crud",
 		Short: "a command for crud operations",

@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	// Controller to interact with different services.
+	// shellCtrl is a controller to interact with different services.
 	shellCtrl ShellController
-	// ShellCmd represents the auth command.
+	// ShellCmd represents the shell command.
 	ShellCmd = &cobra.Command{
 		Use:   "shell",
 		Short: "Runs the shell with a persistent menu.",

@@ -3,8 +3,9 @@ package shell
 import (
 	"encoding/json"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 // getBody function is responsible for generating the body of a request to be sent to the server.
