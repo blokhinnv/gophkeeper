@@ -96,7 +96,6 @@ func RunServer(cfg *config.ServerConfig) {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// r.Run(fmt.Sprintf("127.0.0.1%v", cfg.Port))
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("127.0.0.1:%v", cfg.Port),
 		Handler: r,
@@ -105,11 +104,14 @@ func RunServer(cfg *config.ServerConfig) {
 		var err error
 		if cfg.UseHTTPS {
 			err = srv.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile)
+			if err != nil && err != http.ErrServerClosed {
+				log.Fatalf("provide correct certfile and keyfile or disable https: %v", err)
+			}
 		} else {
 			err = srv.ListenAndServe()
-		}
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen error: %s\n", err)
+			if err != nil && err != http.ErrServerClosed {
+				log.Fatalf("listen error: %s\n", err)
+			}
 		}
 	}()
 	quit := make(chan os.Signal, 2)
