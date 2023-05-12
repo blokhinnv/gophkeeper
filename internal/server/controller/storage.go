@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
@@ -238,10 +237,6 @@ func (c *storageController) Update(ctx *gin.Context) {
 	)
 }
 
-type deleteRequestBody struct {
-	RecordID primitive.ObjectID `json:"record_id" bson:"_id" binding:"required"`
-}
-
 // Delete godoc
 //
 //	@Summary Delete a record by ID
@@ -264,7 +259,9 @@ func (c *storageController) Delete(ctx *gin.Context) {
 		ctx.String(http.StatusUnauthorized, srvErrors.ErrNoUsernameProvided.Error())
 		return
 	}
-	record := deleteRequestBody{}
+	record := models.UntypedRecord{
+		Username: username,
+	}
 
 	if err := ctx.ShouldBindJSON(&record); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())

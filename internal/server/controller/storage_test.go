@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
@@ -222,7 +221,7 @@ func TestStorageController_GetAll(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		expectedRecords := []models.UntypedRecord{
 			{
-				RecordID: primitive.NewObjectID(),
+				RecordID: models.NewObjectID(),
 				Username: username,
 				UntypedRecordContent: models.UntypedRecordContent{
 					Data: map[string]any{
@@ -347,7 +346,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(nil)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -382,7 +381,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(srvErrors.ErrRecordNotFound)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -417,7 +416,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(fmt.Errorf("some error"))
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -448,7 +447,7 @@ func TestStorageController_Update(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 	t.Run("not_valid_data", func(t *testing.T) {
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -479,7 +478,7 @@ func TestStorageController_Update(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 	t.Run("bad_data", func(t *testing.T) {
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -521,6 +520,10 @@ func TestStorageController_Delete(t *testing.T) {
 	assert.NotNil(t, ctrl)
 	username := "testuser"
 
+	type deleteRequestBody struct {
+		RecordID models.ObjectID `json:"record_id" bson:"_id" binding:"required"`
+	}
+
 	t.Run("no_username", func(t *testing.T) {
 		req, _ := http.NewRequest("DELETE", "/api/store/credentials", nil)
 		rec := httptest.NewRecorder()
@@ -555,7 +558,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(nil)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 
@@ -579,7 +582,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(fmt.Errorf("some error"))
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 
@@ -603,7 +606,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(srvErrors.ErrRecordNotFound)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := primitive.NewObjectID()
+		recordID := models.NewObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 

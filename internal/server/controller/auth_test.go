@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/service/mock"
 )
 
@@ -53,7 +53,7 @@ func TestAuthController_Register(t *testing.T) {
 		srvc.EXPECT().
 			Register(gomock.Eq("testuser"), gomock.Eq("testpassword")).
 			Times(1).
-			Return(mongo.CommandError{Code: 11000})
+			Return(errors.ErrUsernameIsTakenMongo)
 		w := httptest.NewRecorder()
 		c, r := gin.CreateTestContext(w)
 		r.POST("/register", ctrl.Register)
@@ -125,7 +125,7 @@ func TestAuthController_Login(t *testing.T) {
 		srvc.EXPECT().
 			Login(gomock.Eq("testuser"), gomock.Eq("wrongpassword")).
 			Times(1).
-			Return("", mongo.ErrNoDocuments)
+			Return("", errors.ErrNoDocuments)
 		w := httptest.NewRecorder()
 		c, r := gin.CreateTestContext(w)
 		r.POST("/login", ctrl.Login)
