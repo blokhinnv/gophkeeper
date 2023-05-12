@@ -561,7 +561,7 @@ func TestStorageController_Delete(t *testing.T) {
 		recordID := models.NewRandomObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
-
+		fmt.Println(">>>>>", string(data))
 		req, _ := http.NewRequest("DELETE", "/api/store/credentials", bytes.NewBuffer(data))
 		rec := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(rec)
@@ -573,7 +573,7 @@ func TestStorageController_Delete(t *testing.T) {
 		)
 
 		ctrl.Delete(ctx)
-
+		fmt.Println(">>>>>", rec.Body.String())
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 	t.Run("service_error", func(t *testing.T) {

@@ -53,7 +53,7 @@ func TestAuthController_Register(t *testing.T) {
 		srvc.EXPECT().
 			Register(gomock.Eq("testuser"), gomock.Eq("testpassword")).
 			Times(1).
-			Return(errors.ErrUsernameIsTakenMongo)
+			Return(errors.ErrUsernameIsTaken)
 		w := httptest.NewRecorder()
 		c, r := gin.CreateTestContext(w)
 		r.POST("/register", ctrl.Register)

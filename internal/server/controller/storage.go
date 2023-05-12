@@ -261,6 +261,9 @@ func (c *storageController) Delete(ctx *gin.Context) {
 	}
 	record := models.UntypedRecord{
 		Username: username,
+		UntypedRecordContent: models.UntypedRecordContent{
+			Data: struct{}{},
+		},
 	}
 
 	if err := ctx.ShouldBindJSON(&record); err != nil {
