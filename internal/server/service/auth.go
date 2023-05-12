@@ -4,6 +4,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -61,6 +62,13 @@ func (t *authService) Register(username, password string) error {
 		{Key: "hashedPassword", Value: string(hashedPassword)},
 	})
 	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return fmt.Errorf(
+				"%w: %v",
+				srvErrors.ErrUsernameIsTaken,
+				username,
+			)
+		}
 		return err
 	}
 	return nil

@@ -5,13 +5,13 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/blokhinnv/gophkeeper/internal/server/errors"
+	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	"github.com/blokhinnv/gophkeeper/internal/server/service"
 )
@@ -55,14 +55,8 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 	if err := c.service.Register(user.Username, user.Password); err != nil {
-		if mongo.IsDuplicateKeyError(err) {
-			ctx.String(http.StatusConflict,
-				fmt.Sprintf(
-					"%v: %v",
-					errors.ErrUsernameIsTaken.Error(),
-					user.Username,
-				),
-			)
+		if errors.Is(err, srvErrors.ErrUsernameIsTaken) {
+			ctx.String(http.StatusConflict, err.Error())
 			return
 		}
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -95,7 +89,7 @@ func (c *authController) Login(ctx *gin.Context) {
 			http.StatusUnauthorized,
 			fmt.Sprintf(
 				"%v: %v %v",
-				errors.ErrBadCredentials.Error(),
+				srvErrors.ErrBadCredentials.Error(),
 				user.Username,
 				user.Password,
 			),
