@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/blokhinnv/gophkeeper/internal/server/errors"
@@ -32,7 +31,7 @@ type StorageService interface {
 		ctx context.Context,
 		collectionName models.CollectionName,
 		username string,
-		id primitive.ObjectID,
+		id models.ObjectID,
 		newData any,
 		newMetadata models.Metadata,
 	) error
@@ -41,7 +40,7 @@ type StorageService interface {
 		ctx context.Context,
 		collectionName models.CollectionName,
 		username string,
-		id primitive.ObjectID,
+		id models.ObjectID,
 	) error
 }
 
@@ -87,7 +86,7 @@ func (t *storageService) Store(
 		{Key: "data", Value: encryptedData},
 		{Key: "metadata", Value: record.Metadata},
 	})
-	stringObjectID := res.InsertedID.(primitive.ObjectID).Hex()
+	stringObjectID := res.InsertedID.(models.ObjectID).Hex()
 	return stringObjectID, err
 }
 
@@ -144,7 +143,7 @@ func (t *storageService) Update(
 	ctx context.Context,
 	collectionName models.CollectionName,
 	username string,
-	id primitive.ObjectID,
+	id models.ObjectID,
 	newData any,
 	newMetadata models.Metadata,
 ) error {
@@ -187,7 +186,7 @@ func (t *storageService) Delete(
 	ctx context.Context,
 	collectionName models.CollectionName,
 	username string,
-	id primitive.ObjectID,
+	id models.ObjectID,
 ) error {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()

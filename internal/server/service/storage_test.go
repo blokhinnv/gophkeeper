@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
 
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
@@ -72,7 +71,7 @@ func (suite *StorageServiceTestSuite) TestGetAll() {
 		require.NoError(t, err)
 
 		batchItem := mtest.CreateCursorResponse(1, "get_all.success_text", mtest.FirstBatch, bson.D{
-			{Key: "_id", Value: primitive.NewObjectID()},
+			{Key: "_id", Value: models.NewRandomObjectID()},
 			{Key: "usename", Value: username},
 			{Key: "data", Value: data},
 		})
@@ -101,7 +100,7 @@ func (suite *StorageServiceTestSuite) TestGetAll() {
 			"get_all.success_not_text",
 			mtest.FirstBatch,
 			bson.D{
-				{Key: "_id", Value: primitive.NewObjectID()},
+				{Key: "_id", Value: models.NewRandomObjectID()},
 				{Key: "usename", Value: username},
 				{Key: "data", Value: data},
 			},
@@ -144,7 +143,7 @@ func (suite *StorageServiceTestSuite) TestUpdate() {
 			context.TODO(),
 			models.TextCollection,
 			"blokhinnv",
-			primitive.NewObjectID(),
+			models.NewRandomObjectID(),
 			"test message",
 			make(models.Metadata),
 		)
@@ -161,7 +160,7 @@ func (suite *StorageServiceTestSuite) TestUpdate() {
 			context.TODO(),
 			models.CredentialsCollection,
 			"blokhinnv",
-			primitive.NewObjectID(),
+			models.NewRandomObjectID(),
 			map[string]any{"login": "blokhinnv", "password": "some-pwd"},
 			make(models.Metadata),
 		)
@@ -177,7 +176,7 @@ func (suite *StorageServiceTestSuite) TestUpdate() {
 			context.TODO(),
 			models.CredentialsCollection,
 			"blokhinnv",
-			primitive.NewObjectID(),
+			models.NewRandomObjectID(),
 			map[string]any{"login": "blokhinnv", "password": "some-pwd"},
 			make(models.Metadata),
 		)
@@ -198,7 +197,7 @@ func (suite *StorageServiceTestSuite) TestDelete() {
 			context.TODO(),
 			models.TextCollection,
 			"blokhinnv",
-			primitive.NewObjectID(),
+			models.NewRandomObjectID(),
 		)
 		require.NoError(t, err)
 	})
@@ -211,7 +210,7 @@ func (suite *StorageServiceTestSuite) TestDelete() {
 			context.TODO(),
 			models.TextCollection,
 			"blokhinnv",
-			primitive.NewObjectID(),
+			models.NewRandomObjectID(),
 		)
 		require.Error(t, err)
 	})

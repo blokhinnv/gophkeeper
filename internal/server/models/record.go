@@ -83,7 +83,12 @@ type CardRecord struct {
 // ObjectID represents entity id.
 type ObjectID = primitive.ObjectID
 
-// Generates new mongo object ID.
-func NewObjectID() ObjectID {
+// NewRandomObjectID generates new random mongo object ID.
+func NewRandomObjectID() ObjectID {
 	return primitive.NewObjectID()
+}
+
+// ObjectIDFromString generates object id from string or returns an error.
+func ObjectIDFromString(s string) (ObjectID, error) {
+	return primitive.ObjectIDFromHex(s)
 }

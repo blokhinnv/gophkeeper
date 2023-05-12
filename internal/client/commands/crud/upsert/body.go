@@ -7,8 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/blokhinnv/gophkeeper/internal/server/errors"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
@@ -46,7 +44,7 @@ func getBody(
 		return "", err
 	}
 
-	recordID, err := primitive.ObjectIDFromHex(recordIDHex)
+	recordID, err := models.ObjectIDFromString(recordIDHex)
 	if err != nil {
 		return "", err
 	}

@@ -8,9 +8,9 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -20,7 +20,7 @@ func TestStorageService_GetAll(t *testing.T) {
 	data := &clientModels.SyncResponse{
 		Text: []srvrModels.TextRecord{
 			{
-				RecordID: primitive.NewObjectID(),
+				RecordID: models.NewRandomObjectID(),
 				Username: "blokhinnv",
 				Data:     srvrModels.TextInfo("some data..."),
 			},
@@ -73,7 +73,7 @@ func TestStorageService_Add(t *testing.T) {
 		)
 
 		body := srvrModels.TextRecord{
-			RecordID: primitive.NewObjectID(),
+			RecordID: models.NewRandomObjectID(),
 			Username: "blokhinnv",
 			Data:     srvrModels.TextInfo("some data..."),
 		}
@@ -122,7 +122,7 @@ func TestStorageService_Update(t *testing.T) {
 		)
 
 		body := srvrModels.TextRecord{
-			RecordID: primitive.NewObjectID(),
+			RecordID: models.NewRandomObjectID(),
 			Username: "blokhinnv",
 			Data:     srvrModels.TextInfo("some data..."),
 		}
@@ -169,7 +169,7 @@ func TestStorageService_Delete(t *testing.T) {
 			httpmock.NewStringResponder(200, "ok"),
 		)
 
-		body := fmt.Sprintf(`{"record_id": "%v"}`, primitive.NewObjectID())
+		body := fmt.Sprintf(`{"record_id": "%v"}`, models.NewRandomObjectID())
 
 		resp, err := s.Delete(body, srvrModels.TextCollection, "some-token...")
 		assert.NoError(t, err)
@@ -184,7 +184,7 @@ func TestStorageService_Delete(t *testing.T) {
 			httpmock.NewStringResponder(400, "bad"),
 		)
 
-		body := fmt.Sprintf(`{"qwe": "%v"}`, primitive.NewObjectID())
+		body := fmt.Sprintf(`{"qwe": "%v"}`, models.NewRandomObjectID())
 		resp, err := s.Delete(body, srvrModels.TextCollection, "some-token...")
 		assert.Equal(t, "", resp)
 		assert.Equal(t, "bad", err.Error())

@@ -3,8 +3,6 @@ package shell
 import (
 	"encoding/json"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -18,7 +16,7 @@ func getBody(collection models.CollectionName, requestID bool) (string, error) {
 	if requestID {
 		recordIDHex = promptText("Record id: ")
 	}
-	recordID, err := primitive.ObjectIDFromHex(recordIDHex)
+	recordID, err := models.ObjectIDFromString(recordIDHex)
 	if err != nil {
 		return "", err
 	}

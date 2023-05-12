@@ -7,10 +7,10 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	clientModels "github.com/blokhinnv/gophkeeper/internal/client/models"
 	srvErrors "github.com/blokhinnv/gophkeeper/internal/server/errors"
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	srvrModels "github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
@@ -34,17 +34,17 @@ func TestSyncService_Sync(t *testing.T) {
 		}
 		expectedResult := &clientModels.SyncResponse{
 			Text: []srvrModels.TextRecord{
-				{RecordID: primitive.NewObjectID(), Data: srvrModels.TextInfo("some-text...")},
+				{RecordID: models.NewRandomObjectID(), Data: srvrModels.TextInfo("some-text...")},
 			},
 			Binary: []srvrModels.BinaryRecord{
 				{
-					RecordID: primitive.NewObjectID(),
+					RecordID: models.NewRandomObjectID(),
 					Data:     srvrModels.BinaryInfo{FileName: "test.test", Content: "cXdlcXdld3Fl"},
 				},
 			},
 			Card: []srvrModels.CardRecord{
 				{
-					RecordID: primitive.NewObjectID(),
+					RecordID: models.NewRandomObjectID(),
 					Data: srvrModels.CardInfo{
 						CardNumber:     "1234 1234 1234 1234",
 						CVV:            "234",
@@ -54,7 +54,7 @@ func TestSyncService_Sync(t *testing.T) {
 			},
 			Credential: []srvrModels.CredentialRecord{
 				{
-					RecordID: primitive.NewObjectID(),
+					RecordID: models.NewRandomObjectID(),
 					Data: srvrModels.CredentialInfo{
 						Login:    "some-login",
 						Password: "some-password",
@@ -133,7 +133,7 @@ func TestSyncService_Sync(t *testing.T) {
 
 		expectedResult := &clientModels.SyncResponse{
 			Text: []srvrModels.TextRecord{
-				{RecordID: primitive.NewObjectID(), Data: srvrModels.TextInfo("text1")},
+				{RecordID: models.NewRandomObjectID(), Data: srvrModels.TextInfo("text1")},
 			},
 		}
 

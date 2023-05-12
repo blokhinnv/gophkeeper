@@ -7,9 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/blokhinnv/gophkeeper/internal/server/models"
 )
 
 type AuthServiceTestSuite struct {
@@ -59,7 +60,7 @@ func (suite *AuthServiceTestSuite) TestLogin() {
 	mt.Run("valid credentials", func(mt *mtest.T) {
 		authService := NewAuthService(mt.Coll, "my-secret-key", time.Hour)
 		mt.AddMockResponses(mtest.CreateCursorResponse(1, "login.valid", mtest.FirstBatch, bson.D{
-			{Key: "_id", Value: primitive.NewObjectID()},
+			{Key: "_id", Value: models.NewRandomObjectID()},
 			{Key: "username", Value: user},
 			{Key: "hashedPassword", Value: string(hashedPassword)},
 		}))
@@ -70,7 +71,7 @@ func (suite *AuthServiceTestSuite) TestLogin() {
 	mt.Run("invalid credentials", func(mt *mtest.T) {
 		authService := NewAuthService(mt.Coll, "my-secret-key", time.Hour)
 		mt.AddMockResponses(mtest.CreateCursorResponse(1, "login.valid", mtest.FirstBatch, bson.D{
-			{Key: "_id", Value: primitive.NewObjectID()},
+			{Key: "_id", Value: models.NewRandomObjectID()},
 			{Key: "username", Value: user},
 			{Key: "hashedPassword", Value: string(hashedPassword)},
 		}))

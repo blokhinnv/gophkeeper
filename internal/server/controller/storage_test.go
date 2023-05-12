@@ -221,7 +221,7 @@ func TestStorageController_GetAll(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		expectedRecords := []models.UntypedRecord{
 			{
-				RecordID: models.NewObjectID(),
+				RecordID: models.NewRandomObjectID(),
 				Username: username,
 				UntypedRecordContent: models.UntypedRecordContent{
 					Data: map[string]any{
@@ -346,7 +346,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(nil)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -381,7 +381,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(srvErrors.ErrRecordNotFound)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -416,7 +416,7 @@ func TestStorageController_Update(t *testing.T) {
 			Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(fmt.Errorf("some error"))
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -447,7 +447,7 @@ func TestStorageController_Update(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 	t.Run("not_valid_data", func(t *testing.T) {
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -478,7 +478,7 @@ func TestStorageController_Update(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 	t.Run("bad_data", func(t *testing.T) {
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := models.UntypedRecord{
 			RecordID: recordID,
 			Username: username,
@@ -558,7 +558,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(nil)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 
@@ -582,7 +582,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(fmt.Errorf("some error"))
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 
@@ -606,7 +606,7 @@ func TestStorageController_Delete(t *testing.T) {
 			Return(srvErrors.ErrRecordNotFound)
 		sync.EXPECT().Signal(gomock.Any()).AnyTimes()
 
-		recordID := models.NewObjectID()
+		recordID := models.NewRandomObjectID()
 		record := deleteRequestBody{recordID}
 		data, _ := json.Marshal(record)
 
