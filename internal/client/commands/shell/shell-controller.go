@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"os"
 
 	clientErr "github.com/blokhinnv/gophkeeper/internal/client/errors"
 	"github.com/blokhinnv/gophkeeper/internal/client/service"
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
+	"github.com/blokhinnv/gophkeeper/pkg/log"
 )
 
 // ShellController defines the interface for the shell controller.

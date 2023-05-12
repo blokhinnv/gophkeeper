@@ -2,12 +2,11 @@
 package main
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
 
 	"github.com/blokhinnv/gophkeeper/internal/server"
 	"github.com/blokhinnv/gophkeeper/internal/server/config"
+	"github.com/blokhinnv/gophkeeper/pkg/log"
 )
 
 func main() {

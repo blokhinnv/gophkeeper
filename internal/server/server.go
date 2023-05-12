@@ -6,7 +6,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,6 +23,7 @@ import (
 	_ "github.com/blokhinnv/gophkeeper/internal/server/docs"
 	"github.com/blokhinnv/gophkeeper/internal/server/middleware"
 	"github.com/blokhinnv/gophkeeper/internal/server/service"
+	"github.com/blokhinnv/gophkeeper/pkg/log"
 )
 
 // RunServer starts the server and listens for incoming requests.

@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"github.com/blokhinnv/gophkeeper/pkg/log"
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 
 	"github.com/blokhinnv/gophkeeper/internal/server/models"
 	slicesUtils "github.com/blokhinnv/gophkeeper/pkg/slices"
@@ -44,7 +44,7 @@ func (s *syncService) Register(client *models.Client) {
 	if !slices.Contains(addrs, client.SocketAddr) {
 		s.clients[client.Username] = append(addrs, client.SocketAddr)
 	}
-	logrus.Infof("Registered %v %v", client.Username, client.SocketAddr)
+	log.Infof("Registered %v %v", client.Username, client.SocketAddr)
 }
 
 // Unregister unregisters an existing client from the server.
@@ -56,7 +56,7 @@ func (s *syncService) Unregister(client *models.Client) {
 		return
 	}
 	s.clients[client.Username] = slicesUtils.Remove(oldAddrs, client.SocketAddr)
-	logrus.Infof("Unregistered %v %v", client.Username, client.SocketAddr)
+	log.Infof("Unregistered %v %v", client.Username, client.SocketAddr)
 }
 
 // Signal sends a signal to all the user's registered clients.
@@ -65,13 +65,13 @@ func (s *syncService) Signal(client *models.Client) {
 		conn, err := net.Dial("tcp", addr)
 		if err != nil {
 			s.clients[client.Username] = slicesUtils.Remove(s.clients[client.Username], addr)
-			logrus.Infof("unable to reach %v; unregistered", addr)
+			log.Infof("unable to reach %v; unregistered", addr)
 			continue
 		}
 		_, err = conn.Write(nil)
 		if err != nil {
 			s.clients[client.Username] = slicesUtils.Remove(s.clients[client.Username], addr)
-			logrus.Infof("unable to reach %v; unregistered", addr)
+			log.Infof("unable to reach %v; unregistered", addr)
 		}
 	}
 }
