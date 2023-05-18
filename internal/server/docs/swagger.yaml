@@ -1,0 +1,370 @@
+basePath: /
+definitions:
+  controller.deleteRequestBody:
+    properties:
+      record_id:
+        type: string
+    required:
+    - record_id
+    type: object
+  models.Client:
+    properties:
+      socket_addr:
+        type: string
+    type: object
+  models.Metadata:
+    additionalProperties:
+      type: string
+    type: object
+  models.UntypedRecord:
+    properties:
+      data:
+        description: Data is an interface{} that can hold any type of data for the
+          record.
+      metadata:
+        allOf:
+        - $ref: '#/definitions/models.Metadata'
+        description: Metadata is a map that can hold additional metadata for the record.
+      record_id:
+        description: Unique ID of a document in the DB.
+        type: string
+    required:
+    - data
+    type: object
+  models.UntypedRecordContent:
+    properties:
+      data:
+        description: Data is an interface{} that can hold any type of data for the
+          record.
+      metadata:
+        allOf:
+        - $ref: '#/definitions/models.Metadata'
+        description: Metadata is a map that can hold additional metadata for the record.
+    required:
+    - data
+    type: object
+  models.UserCredentials:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+info:
+  contact: {}
+  description: Gophkeeper server which allows user to store the sensitive data.
+  title: Gophkeeper server
+  version: "1.0"
+paths:
+  /api/ping:
+    get:
+      description: Returns plain text response with a "pong" message if the server
+        is available, otherwise returns an error message.
+      operationId: Ping
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: pong
+          schema:
+            type: string
+        "500":
+          description: not pong
+          schema:
+            type: string
+      summary: Ping server
+      tags:
+      - Utils
+  /api/store/{collectionName}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a record from the specified collection by ID.
+      operationId: Delete
+      parameters:
+      - description: RecordID
+        in: body
+        name: record_id
+        required: true
+        schema:
+          $ref: '#/definitions/controller.deleteRequestBody'
+      - description: Collection name
+        in: path
+        name: collectionName
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Record deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Delete a record by ID
+      tags:
+      - Storage
+    get:
+      consumes:
+      - application/json
+      description: Returns all the untyped records from the database based on the
+        data provided in the request.
+      operationId: GetAll
+      parameters:
+      - description: Collection name
+        in: path
+        name: collectionName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Record added by the user in the specified collection
+          schema:
+            items:
+              $ref: '#/definitions/models.UntypedRecord'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Retrieve all untyped records for the authenticated user from a collection.
+      tags:
+      - Storage
+    post:
+      consumes:
+      - application/json
+      description: Updates the data and metadata of a document in the collection specified
+        by the request URL, based on the data provided in the request body. The updated
+        document is identified by its ID, which is included in the request body as
+        well.
+      operationId: Update
+      parameters:
+      - description: Record
+        in: body
+        name: record
+        required: true
+        schema:
+          $ref: '#/definitions/models.UntypedRecord'
+      - description: Collection name
+        in: path
+        name: collectionName
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "202":
+          description: Record updated
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Update an existing record in the database.
+      tags:
+      - Storage
+    put:
+      consumes:
+      - application/json
+      description: Stores an untyped record to the database based on the data provided
+        in the request.
+      operationId: Store
+      parameters:
+      - description: Record
+        in: body
+        name: record
+        required: true
+        schema:
+          $ref: '#/definitions/models.UntypedRecordContent'
+      - description: Collection name
+        in: path
+        name: collectionName
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "202":
+          description: Record added to collection
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Store an untyped record to the database.
+      tags:
+      - Storage
+  /api/sync/register:
+    post:
+      consumes:
+      - application/json
+      description: Allows a client to register with the synchronization service.
+      operationId: RegisterClient
+      parameters:
+      - description: Client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: client registered
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Registers a new client with the synchronization service.
+      tags:
+      - Sync
+  /api/sync/unregister:
+    post:
+      consumes:
+      - application/json
+      description: Allows a client to unregister from the synchronization service.
+      operationId: UnregisterClient
+      parameters:
+      - description: Client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: client unregistered
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: No username provided
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Unregisters an existing client from the server.
+      tags:
+      - Sync
+  /api/user/login:
+    put:
+      description: Logs in a user with the provided username and password
+      operationId: Login
+      parameters:
+      - description: Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCredentials'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: some JWT token
+          schema:
+            type: string
+        "400":
+          description: no username provided
+          schema:
+            type: string
+        "401":
+          description: 'username or password is incorrect: testuser/qwerty'
+          schema:
+            type: string
+      summary: Logs in a user
+      tags:
+      - Authy
+  /api/user/register:
+    put:
+      description: Register a new user with provided credentials
+      operationId: Register
+      parameters:
+      - description: Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCredentials'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "409":
+          description: Username is already taken
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - Authy
+schemes:
+- http
+securityDefinitions:
+  bearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
